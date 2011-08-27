@@ -13,7 +13,9 @@
   "dependencies": {
     "nko": "~0.1.0",
     "express": "*",
-    "colors":"0.5.0"
+    "colors":"0.5.0",
+    "now"; "0.7.4",
+    "underscore": "1.1.7"
   },
   "devDependencies": {},
   "private": true
