@@ -26,10 +26,9 @@ $(document).ready(function() {
         name = data.rows[i].id;
         if (name) moduleNames.push(data.rows[i].id);
       }
-      input.autocomplete({ 
-        source: moduleNames 
-      , autoFocus: true
-      , delay: 50
+      input.autocomplete({
+        source: moduleNames
+      , delay: 100
       });
     } else {
       console.log('fail.');
@@ -39,8 +38,8 @@ $(document).ready(function() {
 
   /* Load realtime data */
   now.testUpdated = function(data) {
-    if(console) {
+    if (console) {
       console.log("Updated", data);
     }
-  }
+  };
 });

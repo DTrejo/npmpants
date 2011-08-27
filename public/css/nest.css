@@ -34,6 +34,10 @@ h1 a {
   box-shadow: 5px 5px 5em #333;
 }
 
+#name, #repo {
+  font-family: 'Inconsolata', monospace;
+}
+
 .greencheck, .redx {
   padding: .5em .5em;
   border-radius: 3px;
