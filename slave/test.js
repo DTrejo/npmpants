@@ -1,4 +1,4 @@
-var slave = require("./slave");
+var slave = require("./slave-driver");
 
 var s = slave.run(process.argv[2] || "test");
 

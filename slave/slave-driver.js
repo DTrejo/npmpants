@@ -26,9 +26,12 @@ exports.run = function(module, runner) {
 	if(!ready) {
 		// we're not ready so add the module and the new runner to the que
 		queue.push([module, r]);
+
 		// return the runner so other components can subscribe to completed events
 		return r;
 	};
+
+	console.log("Installing " + module);
 
 	// ok, npm must be ready now, continue with the install
 	// install(here, module_name, cb);
