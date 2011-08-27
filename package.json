@@ -1,0 +1,17 @@
+{
+  "author": "Trejo, Zhang, Morgan, Wang <dtrejo@cs.brown.edu>",
+  "name": "hollaback",
+  "description": "CPANTS for Node",
+  "version": "0.0.1",
+  "homepage": "http://hollaback.no.de/",
+  "repository": {
+    "url": ""
+  },
+  "engines": {
+    "node": "~v0.4.9"
+  },
+  "dependencies": {
+    "nko": "~0.1.0"
+  },
+  "devDependencies": {}
+}
