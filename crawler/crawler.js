@@ -1,7 +1,7 @@
 var options = {
   host: 'search.npmjs.org',
   port: '80',
-  path: '/api/_all_docs?include_docs=true&limit=3'
+  path: '/api/_all_docs?include_docs=true&limit=10'
 };
 
 var http = require('http'),
@@ -23,14 +23,15 @@ var interpretJSON = function (obj) {
 
     // TODO may not actually be latest
     var latest = el.doc.versions[versions.pop()];
-    
-    console.log(el.id, latest.scripts);
-    
+
     if (latest && latest.scripts && latest.scripts.test !== undefined) {
+
+      console.log(el.id, latest.scripts);
+
       var s = slave.run(el.id);
-      s.on('complete', function (code, sig) {
+      s.on('complete', function (code, sig, err) {
         // Add to database.
-        console.log('complete>', el.id, code, sig);
+        console.log('complete>', el.id, code, sig, err && err.message.replace('\n', ' '));
       });
 
 	  s.on("error", function(err) {
