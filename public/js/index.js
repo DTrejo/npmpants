@@ -25,7 +25,7 @@ $(document).ready(function() {
       for (var i = data.rows.length - 1; i >= 0; i--) {
         name = data.rows[i].id;
         if (name) moduleNames.push(data.rows[i].id);
-      }`
+      }
       input.autocomplete({ 
         source: moduleNames 
       , autoFocus: true
