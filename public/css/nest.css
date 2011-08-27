@@ -9,6 +9,9 @@ body {
   background-color: #ddd;
   padding: 1.5em;
 }
+label {
+  font-size: 1em;
+}
 
 h1, h2, h3 {
   font-family: 'Ubuntu', "Helvetica Neue", "HelveticaNeue", "Lucida Grande", Helvetica, Arial, sans-serif;
