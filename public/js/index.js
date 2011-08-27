@@ -38,7 +38,7 @@ $(document).ready(function() {
 
 
   /* Load realtime data */
-  now.projectUpdated = function(data) {
+  now.testUpdated = function(data) {
     if(console) {
       console.log("Updated", data);
     }

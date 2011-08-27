@@ -175,49 +175,109 @@ app.listen(PORT);
 
 
 
-// Realtime changes push to clients
+
+
+
+
+
+
+
+
+
+
+// Stream from our db for realtime test results updates to clients
 var everyone = nowjs.initialize(app);
 
+var lastDbSeq = 0;
 
-
-
-// Stream from NPM db for great realtime updates
-
-var last = 0;
-
-function getLastSeq(cb) {
-  get('search.npmjs.org', 80, '/api/_changes', function(data){
-    data = JSON.parse(data);
-    cb(data.last_seq);
-  });
-}
-
-getLastSeq(function(lastSeq){
-  last = lastSeq;
-  getChanges();
-  console.log();
+// Get our db's last change id
+get('hollaback.iriscouch.com', 80, '/testresults/_changes', function(data){
+  data = JSON.parse(data);
+  lastDbSeq = data.last_seq;
+  getDbChanges();
 });
 
-function getChanges() {
+function getDbChanges() {
   http.get({
-    host: 'search.npmjs.org',
+    host: 'hollaback.iriscouch.com',
     port: 80,
-    path: '/api/_changes?feed=continuous&since='+(last-10)
+    path: '/testresults/_changes?feed=continuous&since='+(lastDbSeq)
   }, function(res) {
     var cur = "";
     res.on('data', function(chunk){
       cur += chunk.toString();
       try {
         var data = JSON.parse(cur);
-        last = data.seq || data.last_seq;
+        lastDbSeq = data.seq || data.last_seq;
+        if(data.hasOwnProperty('id')) {
+          updateResults(data);
+        }
+        cur = "";
+      } catch (e) {}
+    });
+    res.on('end', getDbChanges);
+    res.on('error', getDbChanges);
+  });
+}
+
+function updateResults(data) {
+  get('hollaback.iriscouch.com', 80, '/testresults/'+data.id, function(res){
+    res = JSON.parse(res);
+    if(res.hasOwnProperty('error')) {
+      console.log(data.id, res);
+    } else {
+      console.log("Updating results for " + res.module, res.test);
+      // Update object
+      everyone.count(function(count){
+        if(count > 0) {
+          everyone.now.testUpdated(res);
+        }
+      });
+    }
+  });
+}
+
+
+
+
+
+
+
+
+// Stream from NPM db for great realtime updates
+
+var lastNpmSeq = 0;
+
+
+// Gets last change id
+
+get('search.npmjs.org', 80, '/api/_changes', function(data){
+  data = JSON.parse(data);
+  lastNpmSeq = data.last_seq;
+  getNpmChanges();
+});
+
+
+function getNpmChanges() {
+  http.get({
+    host: 'search.npmjs.org',
+    port: 80,
+    path: '/api/_changes?feed=continuous&since='+(lastNpmSeq)
+  }, function(res) {
+    var cur = "";
+    res.on('data', function(chunk){
+      cur += chunk.toString();
+      try {
+        var data = JSON.parse(cur);
+        lastNpmSeq = data.seq || data.last_seq;
         if(data.hasOwnProperty('id')) {
           updateModule(data);  
         }
         cur = "";
       } catch (e) {}
     });
-    res.on('end', getChanges);
-    res.on('error', getChanges);
+    res.on('end', getNpmChanges);
+    res.on('error', getNpmChanges);
   });
 }
 
@@ -229,14 +289,18 @@ function updateModule(data) {
       console.log(data.id, res);
     } else {
       // Update object
-      //   instead of feeding data into projectUpdated directly, probably should send test result data
-      everyone.count(function(count){
+      /*everyone.count(function(count){
         if(count > 0) {
           everyone.now.projectUpdated(data);
         }
-      });
+      });*/
+      alertSlaves(data);
     }
   });
+}
+
+function alertSlaves(data) {
+  // Tell slaves to rerun tests for module specified in data
 }
 
 
