@@ -8,9 +8,11 @@ var fs = require("fs"),
 
 var queue = [], ready = false;
 
+var config = { loglevel: 'silent' };
+
 // load needs to be call before any npm.commands can be run
 // but run needs to be call externally so we cannot do install from with in load
-npm.load(function() {
+npm.load(config, function() {
 	// tell slaveRunner.run we're ready
 	ready = true;
 	// then run out the que
@@ -35,9 +37,14 @@ exports.run = function(module, runner) {
 
 	// ok, npm must be ready now, continue with the install
 	// install(here, module_name, cb);
-	npm.commands.install(".", module, function(err, data) {
+	npm.commands.install(__dirname, module, function(err, data) {
+	  if (err) {
+	    r.emit('complete', 1, null, err);
+	    return;
+	  }
+
 		// all modules are installed locally to prevent external problems
-		var module_path = "./node_modules/" + module;
+		var module_path = __dirname + "/node_modules/" + module;
 
 		// load the modules package.json
 		var package = JSON.parse(
