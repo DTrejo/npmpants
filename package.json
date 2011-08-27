@@ -15,5 +15,6 @@
     "express": "*",
     "colors":"0.5.0"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "private": true
 }
