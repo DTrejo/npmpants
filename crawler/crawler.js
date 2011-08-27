@@ -6,7 +6,6 @@ var options = {
 
 var http = require('http'),
     data = "",
-    obj,
     regex = /^http:\/\/packages:5984/,
     replacement = 'http://registry.npmjs.org';
 
