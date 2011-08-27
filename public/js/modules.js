@@ -11,11 +11,20 @@ $(document).ready(function() {
     $.getJSON('/api/modules/' + (window.location.hash.substring(1)), cb);
     function cb(data, status) {
       if (status === 'success') {
-        if (Object.keys(data).length === 0) {
+
+        if (!data || !data.name) {
           data = noResultFound;
         }
         $('#name').text(data.name);
-        $('#description').text(data.description);
+
+        // description
+        if (data.description) {
+          $('#description').text(data.description);
+        } else {
+          $('#description').text('(No description)');
+        }
+
+        // link to repo, if found
         if (data.repository && data.repository.github) {
           $('#repo')
             .attr('href', data.repository.github)
@@ -23,12 +32,15 @@ $(document).ready(function() {
         } else {
           $('#repo').parent().text('(Github URL not found for this package)');
         }
-        if (data.author.name) {
+
+        // author name
+        if (data.author && data.author.name) {
           $('#author').text(data.author.name);
         } else {
-          console.log(data.maintainer);
           $('#author').text('(Author not listed)');
         }
+
+        // test results
         if (data['test-results']) {
           insertResults(data['test-results']);
         }
