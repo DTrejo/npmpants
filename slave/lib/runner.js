@@ -75,6 +75,7 @@ var RunnerPrototype = {
 	},
 	onErr: function(err) {
 		console.log("[TEST ERR] " + err);
+		this.emit("error", [err]);
 	},
 	
 	onExit: function(code, sig) {

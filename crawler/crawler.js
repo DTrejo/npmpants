@@ -32,6 +32,10 @@ var interpretJSON = function (obj) {
         // Add to database.
         console.log('complete>', el.id, code, sig);
       });
+
+	  s.on("error", function(err) {
+		console.log("Something went wrong: " + err);
+	  });
     }
   });
 };

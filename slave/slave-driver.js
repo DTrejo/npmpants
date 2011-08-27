@@ -22,7 +22,7 @@ npm.load(function() {
 exports.run = function(module, runner) {
 	// create out runner even if npm isn't ready
 	var r = runner || new Runner;
-  console.log(module);
+
 	if(!ready) {
 		// we're not ready so add the module and the new runner to the que
 		queue.push([module, r]);
