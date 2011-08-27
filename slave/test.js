@@ -1,3 +1,7 @@
 var slave = require("./slave");
 
-slave.run(process.argv[2] || "test");
+var s = slave.run(process.argv[2] || "test");
+
+s.on("complete", function() {
+	console.log("test completed");
+});

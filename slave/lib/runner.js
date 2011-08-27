@@ -10,28 +10,36 @@ module.exports = Runner;
 function Runner(cmd, run_path) {
 	events.EventEmitter.call(this);
 
-	cmd = cmd.split(" ");
-
-	process.chdir(run_path);
-	var p = cp.spawn(cmd[0], cmd.splice(1));
-
-	p.stdout.on("data", _.bind(this.onOut, this));
-	p.stderr.on("data", _.bind(this.onErr, this));
-	p.on("exit", _.bind(this.onExit, this));
+	if(cmd)
+		this.run(cmd, run_path);
 }
 
 util.inherits(Runner, events.EventEmitter);
 
-Runner.prototype = {
+var RunnerPrototype = {
+	run: function(cmd, run_path) {
+		cmd = cmd.split(" ");
+
+		if(run_path)
+			process.chdir(run_path);
+
+		var p = cp.spawn(cmd[0], cmd.splice(1));
+
+		p.stdout.on("data", _.bind(this.onOut, this));
+		p.stderr.on("data", _.bind(this.onErr, this));
+		p.on("exit", _.bind(this.onExit, this));
+	},
 	onErr: function(err) {
 		console.log("[TEST ERR] " + err);
 	},
 	
 	onExit: function(code, sig) {
-		console.log("test completed");
+		this.emit("complete");
 	},
 
 	onOut: function(data) {
 		console.log("[TEST] " + data);
 	}
 };
+
+_.extend(Runner.prototype, RunnerPrototype);

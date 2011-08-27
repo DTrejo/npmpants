@@ -11,14 +11,18 @@ var queue = [], ready = false;
 npm.load(function() {
 	ready = true;
 	queue.forEach(function(module) {
-		exports.run(module);
+		exports.run(module[0], module[1]);
 	});
 });
 
-exports.run = function(module) {
+exports.run = function(module, runner) {
+	var r = runner || new Runner;
+
 	if(!ready) {
-		return queue.push(module);
+		queue.push([module, r]);
+		return r;
 	};
+
 	npm.commands.install(".", module, function(err, data) {
 		var module_path = "./node_modules/" + module;
 
@@ -30,6 +34,8 @@ exports.run = function(module) {
 			throw new Error("package needs to define scripts.test");
 		}
 		
-		var r = new Runner(package.scripts.test, module_path);
+		r.run(package.scripts.test, module_path);
 	});
+
+	return r;
 }
