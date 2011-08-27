@@ -64,7 +64,7 @@ function getPackageJSON(moduleName, cb) {
 // TODO don't use a temporary view, they are super slow!
 // TODO make the view if it doesn't already exist, then query it.
 function getTestResults(name, cb) {
-  console.log('looking for module in couchDB ', name);
+  console.log('looking for module in couchDB:', name);
   db.temporaryView({
     map: 'function(doc) {\
       if (doc.module == "' + name + '") {\
@@ -88,7 +88,6 @@ app.get('/api/modules/:name', function(req, res, next) {
       packageJSON.repository.github = githubURL;
       getTestResults(name, function(err, results) {
         if (err) console.log(err);
-        console.log(err, results);
         packageJSON['test-results'] = results;
         res.send(packageJSON);
       });
