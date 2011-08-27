@@ -40,12 +40,15 @@ h1 a {
   content:"✘ ";
 }
 
-.hidden {
-  display: none;
-}
-
 .footer {
   margin-top: 3em;
   padding-top: 1em;
   border-top: 1px solid #999;
+}
+
+.hidden {
+  display: none;
+}
+.right {
+  float: right;
 }
