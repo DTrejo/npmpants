@@ -10,11 +10,9 @@ var express = require('express')
 app.use(app.router);
 app.use(express.static(__dirname + '/public'));
 
-//
-// These routes only work if a static file has not already been served.
-//
-app.get('/', function(req, res, next) {
-  res.end('Hello, World');
+app.get('/modules/:name', function(req, res, next) {
+  var name = req.params.name;
+  res.end('Hello, lookin at: ' + name);
 });
 
 console.log('Your highness, at your service:'.yellow
