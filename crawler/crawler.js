@@ -1,7 +1,7 @@
 var options = {
   host: 'search.npmjs.org',
   port: '80',
-  path: '/api/_all_docs&include_docs=true'
+  path: '/api/_all_docs?include_docs=true'
 };
 
 var http = require('http'),
