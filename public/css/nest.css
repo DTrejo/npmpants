@@ -2,7 +2,7 @@ html {
   background: #F4F4F4 url(/images/cubes.png);
 }
 body {
-  width: 50%;
+  width: 35em;
   margin: 3em auto;
   font-family: Apex, "Helvetica Neue", "HelveticaNeue", "Lucida Grande",  Helvetica, Arial, sans-serif;
   font-size: 125%;
