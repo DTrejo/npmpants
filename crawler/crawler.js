@@ -1,11 +1,11 @@
 var options = {
   host: 'search.npmjs.org',
   port: '80',
-  path: '/api/_all_docs?include_docs=true'
+  path: '/api/_all_docs?include_docs=true&limit=3'
 };
 
 var http = require('http'),
-    slave = require("./slave"),
+    slave = require('../slave'),
     data = '';
 
 /**
@@ -17,11 +17,20 @@ var http = require('http'),
  */
 
 var interpretJSON = function (obj) {
-  obj.rows.map(function (el) {
-    if (el.scripts && el.scripts.test !== undefined) {
+  obj.rows.map(function (el, i) {
+    if (!el.id) return;
+    var versions = Object.keys(el.doc.versions);
+
+    // TODO may not actually be latest
+    var latest = el.doc.versions[versions.pop()];
+    
+    console.log(el.id, latest.scripts);
+    
+    if (latest && latest.scripts && latest.scripts.test !== undefined) {
       var s = slave.run(el.id);
-      s.on('complete', function () {
+      s.on('complete', function (code, sig) {
         // Add to database.
+        console.log('complete>', el.id, code, sig);
       });
     }
   });
