@@ -17,27 +17,37 @@ var http = require('http'),
  */
 
 var interpretJSON = function (obj) {
-  obj.rows.map(function (el, i) {
-    if (!el.id) return;
-    var versions = Object.keys(el.doc.versions);
+  getUname(function(err, uname) {
 
-    // TODO may not actually be latest
-    var latest = el.doc.versions[versions.pop()];
 
-    if (latest && latest.scripts && latest.scripts.test !== undefined) {
 
-      console.log(el.id, latest.scripts);
+    obj.rows.map(function (el, i) {
+      if (!el.id) return;
+      var versions = Object.keys(el.doc.versions);
 
-      var s = slave.run(el.id);
-      s.on('complete', function (code, sig, err) {
-        // Add to database.
-        console.log('complete>', el.id, code, sig, err && err.message.replace('\n', ' '));
-      });
+      // TODO may not actually be latest
+      var latest = el.doc.versions[versions.pop()];
 
-	  s.on("error", function(err) {
-		console.log("Something went wrong: " + err);
-	  });
-    }
+      if (latest && latest.scripts && latest.scripts.test !== undefined) {
+
+        console.log(el.id, latest.scripts);
+
+        var s = slave.run(el.id);
+        s.on('complete', function (code, sig, err) {
+          // Add to database.
+          console.log('complete>', el.id, code, sig
+            , err && err.message.replace('\n', ' '), uname);
+        });
+
+        s.on("error", function(err) {
+          console.log("Something went wrong: " + err);
+        });
+      }
+    });
+
+
+
+
   });
 };
 
@@ -51,3 +61,15 @@ http.get(options, function (res) {
   });
 });
 
+
+// IN CRAWLER FOR NOW, TO BE MOVED TO SLAVE-DRIVER ONCE TABS-->SPACES
+var exec = require('child_process').exec;
+function getUname(cb) {
+  exec('uname -mrs', function (error, stdout, stderr) {
+      if (error !== null) {
+        cb(error, stdout);
+      } else {
+        cb(null, stdout.trim());
+      }
+  });
+}
