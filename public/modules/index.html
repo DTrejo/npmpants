@@ -15,17 +15,23 @@
 
   <h1><a href="/">nest — CPANTS for Node</a></h1>
 
-  <form action="/" method="post" id="royalForm">
-    <label for="input">Name of Module</label><br>
-    <input type="text" name="input" id="input" placeholder="express">
+  <h2><span id=name>Module</span> Test Results</h2>
+  <p id=description>Description</p>
+  <p>By <span id=author>Author</span>.</p>
+  <p>View <a id=repo href="#">Module</a> on Github</p>
 
-    <button id="button" class="button green">Do tests pass?</button>
-  </form>
+  <table id=results>
+    <tr><th>Solaris</th></tr>
+    <tr class="hidden template"><td class="check green">0.5</td></tr>
+    <tr class="result"><td class="check green">0.4</td></tr>
+    <tr class=result><td class="x red">0.3</td></tr>
+  </table>
+
 
   <!-- defer loads scripts in order + async. Does not block DOM rendering -->
   <script src="/js/jquery.js" defer></script>
   <script src="/js/underscore.js" defer></script>
-  <script src="/js/index.js" defer></script>
+  <script src="/js/modules.js" defer></script>
 
   <!-- for CSS dev -->
   <script src="http://localhost:8001/vogue-client.js" defer></script>
