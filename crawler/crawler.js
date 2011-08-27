@@ -1,7 +1,7 @@
 var options = {
   host: 'search.npmjs.org',
   port: '80',
-  path: '/api/_all_docs?include_docs=true&limit=10'
+  path: '/api/_all_docs?include_docs=true&limit=50'
 };
 
 var http = require('http'),
@@ -17,37 +17,28 @@ var http = require('http'),
  */
 
 var interpretJSON = function (obj) {
-  getUname(function(err, uname) {
+  obj.rows.map(function (el, i) {
+    if (!el.id) return;
+    var versions = Object.keys(el.doc.versions);
 
+    // TODO may not actually be latest
+    var latest = el.doc.versions[versions.pop()];
 
+    if (latest && latest.scripts && latest.scripts.test !== undefined) {
 
-    obj.rows.map(function (el, i) {
-      if (!el.id) return;
-      var versions = Object.keys(el.doc.versions);
+      console.log(el.id, latest.scripts);
 
-      // TODO may not actually be latest
-      var latest = el.doc.versions[versions.pop()];
+      var s = slave.run(el.id);
+      s.on('complete', function (code, sig, err) {
+        // Add to database.
+        console.log('complete>', el.id, code, sig
+          , err && err.message.replace('\n', ' '), slave.UNAME);
+      });
 
-      if (latest && latest.scripts && latest.scripts.test !== undefined) {
-
-        console.log(el.id, latest.scripts);
-
-        var s = slave.run(el.id);
-        s.on('complete', function (code, sig, err) {
-          // Add to database.
-          console.log('complete>', el.id, code, sig
-            , err && err.message.replace('\n', ' '), uname);
-        });
-
-        s.on("error", function(err) {
-          console.log("Something went wrong: " + err);
-        });
-      }
-    });
-
-
-
-
+      s.on("error", function(err) {
+        console.log("Something went wrong: " + err);
+      });
+    }
   });
 };
 
@@ -60,16 +51,3 @@ http.get(options, function (res) {
     interpretJSON(JSON.parse(data));
   });
 });
-
-
-// IN CRAWLER FOR NOW, TO BE MOVED TO SLAVE-DRIVER ONCE TABS-->SPACES
-var exec = require('child_process').exec;
-function getUname(cb) {
-  exec('uname -mrs', function (error, stdout, stderr) {
-      if (error !== null) {
-        cb(error, stdout);
-      } else {
-        cb(null, stdout.trim());
-      }
-  });
-}

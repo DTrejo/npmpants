@@ -1,9 +1,9 @@
 var fs = require("fs"),
   npm = require("npm"),
   spawn = require("child_process").spawn,
-  
+  exec = require('child_process').exec,
+
   Runner = require("./lib/runner"),
-  
   util = require("util");
 
 var queue = [], ready = false;
@@ -13,11 +13,15 @@ var config = { loglevel: 'silent' };
 // load needs to be call before any npm.commands can be run
 // but run needs to be call externally so we cannot do install from with in load
 npm.load(config, function() {
-  // tell slaveRunner.run we're ready
-  ready = true;
-  // then run out the que
-  queue.forEach(function(module) {
-    exports.run(module[0], module[1]);
+  getUname(function(err, uname) {
+    exports.UNAME = uname;
+
+    // tell slaveRunner.run we're ready
+    ready = true;
+    // then run out the que
+    queue.forEach(function(module) {
+      exports.run(module[0], module[1]);
+    });
   });
 });
 
@@ -50,15 +54,28 @@ exports.run = function(module, runner) {
     var package = JSON.parse(
       fs.readFileSync(module_path + "/package.json").toString()
     );
-    
+
     // we only care about modules that provide a test in package.json
     if(!(package.scripts && package.scripts.test)) {
       throw new Error("package needs to define scripts.test");
     }
-    
+
     // tell the runner to go to work
     r.run(package.scripts.test, module_path);
   });
 
   return r;
+}
+
+// get's the system's uname, e.g.
+// SunOS 5.11 i86pc
+// Darwin 10.7.0 i386 // actually im on 10.6, but whateves.
+function getUname(cb) {
+  exec('uname -mrs', function (error, stdout, stderr) {
+    if (error !== null) {
+      cb(error, stdout);
+    } else {
+      cb(null, stdout.trim());
+    }
+  });
 }
