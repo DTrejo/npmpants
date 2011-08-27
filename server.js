@@ -3,6 +3,7 @@ var express = require('express')
   , app = express.createServer()
   , colors = require('colors')
   , fs = require('fs')
+  , nowjs = require('now')
   , nko = require('nko')('fxFY6qeBj18FyrA2')
   , PORT = parseInt(process.env.PORT, 10) || 8000
   ;
@@ -174,7 +175,8 @@ app.listen(PORT);
 
 
 
-
+// Realtime changes push to clients
+var everyone = nowjs.initialize(app);
 
 
 
@@ -227,6 +229,12 @@ function updateModule(data) {
       console.log(data.id, res);
     } else {
       // Update object
+      //   instead of feeding data into projectUpdated directly, probably should send test result data
+      everyone.count(function(count){
+        if(count > 0) {
+          everyone.now.projectUpdated(data);
+        }
+      });
     }
   });
 }

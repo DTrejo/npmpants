@@ -37,4 +37,10 @@ $(document).ready(function() {
   }
 
 
+  /* Load realtime data */
+  now.projectUpdated = function(data) {
+    if(console) {
+      console.log("Updated", data);
+    }
+  }
 });
