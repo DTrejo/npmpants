@@ -15,4 +15,26 @@ $(document).ready(function() {
     e.preventDefault();
     return false;
   });
+
+  $.getJSON('/js/_all_docs.json', cb);
+  function cb(data, status) {
+    if (status === 'success') {
+      var moduleNames = []
+        , name = ''
+        , ac = undefined;
+      for (var i = data.rows.length - 1; i >= 0; i--) {
+        name = data.rows[i].id;
+        if (name) moduleNames.push(data.rows[i].id);
+      }`
+      input.autocomplete({ 
+        source: moduleNames 
+      , autoFocus: true
+      , delay: 50
+      });
+    } else {
+      console.log('fail.');
+    }
+  }
+
+
 });
