@@ -1,3 +1,4 @@
+// boring requires
 var express = require('express')
   , http = require('http')
   , app = express.createServer()
@@ -7,7 +8,17 @@ var express = require('express')
   , nko = require('nko')('fxFY6qeBj18FyrA2')
   , _ = require('underscore')
   , request = require('request')
+  , cradle = require('cradle')
 
+  // cradle stuff
+  , connection = new(cradle.Connection)('hollaback.iriscouch.com', 80, {
+      cache: true
+    , raw: false
+    , auth: { username: 'hollaback', password: 'momasaidknockyouout' }
+  })
+  , db = connection.database('testresults')
+
+  // constants
   , PORT = parseInt(process.env.PORT, 10) || 8000
   ;
 
@@ -49,6 +60,21 @@ function getPackageJSON(moduleName, cb) {
   })
 }
 
+// Goes to our own couchDB and gets the test results for this module.
+// TODO don't use a temporary view, they are super slow!
+// TODO make the view if it doesn't already exist, then query it.
+function getTestResults(name, cb) {
+  console.log('looking for module in couchDB ', name);
+  db.temporaryView({
+    map: 'function(doc) {\
+      if (doc.module == "' + name + '") {\
+        emit(doc._id, doc);\
+      }\
+    }'
+  }
+  , cb);
+}
+
 app.get('/api/modules/:name', function(req, res, next) {
   var name = req.params.name;
   getPackageJSON(name, function(err, packageJSON) {
@@ -60,8 +86,15 @@ app.get('/api/modules/:name', function(req, res, next) {
     if (githubURL) {
       packageJSON.repository = packageJSON.repository || {};
       packageJSON.repository.github = githubURL;
-    } 
-    res.send(packageJSON);    
+      getTestResults(name, function(err, results) {
+        if (err) console.log(err);
+        console.log(err, results);
+        packageJSON['test-results'] = results;
+        res.send(packageJSON);
+      });
+    } else {
+      res.send(packageJSON);
+    }
   });
 });
 
