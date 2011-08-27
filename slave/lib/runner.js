@@ -57,7 +57,7 @@ var RunnerPrototype = {
 	},
 	
 	onExit: function(code, sig) {
-		this.emit("complete");
+		this.emit("complete", code, sig);
 	},
 
 	onOut: function(data) {

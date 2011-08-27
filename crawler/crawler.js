@@ -5,9 +5,8 @@ var options = {
 };
 
 var http = require('http'),
-    data = "",
-    regex = /^http:\/\/packages:5984/,
-    replacement = 'http://registry.npmjs.org';
+    slave = require("./slave"),
+    data = '';
 
 /**
  * Some magic function that takes the URL of a tarball. Should
@@ -16,24 +15,16 @@ var http = require('http'),
  * TODO: Replace with a reference to the actual function, some time
  * after it's been written.
  */
-var dl = function (url) {
-
-};
-
-var testModule = function (mod) {
-  if (mod.id === '') {
-    return;
-  }
-  var versions = mod.doc.versions;
-  for (var i = 0, keys = Object.keys(versions), ll = keys.length; i < ll; i++) {
-    dl(versions[keys[i]].dist.tarball.replace(regex, replacement));
-  }
-};
 
 var interpretJSON = function (obj) {
-  for (var i = 0, rows = obj.rows, ll = rows.length; i < ll; i++) {
-    testModule(rows[i]);
-  }
+  obj.rows.map(function (el) {
+    if (el.scripts && el.scripts.test !== undefined) {
+      var s = slave.run(el.id);
+      s.on('complete', function () {
+        // Add to database.
+      });
+    }
+  });
 };
 
 http.get(options, function (res) {
