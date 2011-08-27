@@ -9,10 +9,9 @@ $(document).ready(function() {
       $('#description').text(data.description);
       $('#repo')
         .text(data.name)
-        .attr('href', data.repository.url) // git clone URL, so deceptive. Fix!
-        ;
+        .attr('href', data.repository.url); // git clone URL, so deceptive. Fix!
       $('#author').text(data.author);
-      
+      $('')
     } else {
       // say sorry, shit's broken.
     }
