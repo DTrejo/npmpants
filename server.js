@@ -10,9 +10,16 @@ var express = require('express')
 app.use(app.router);
 app.use(express.static(__dirname + '/public'));
 
+// returns html
 app.get('/modules/:name', function(req, res, next) {
   var name = req.params.name;
   res.end('Hello, lookin at: ' + name);
+});
+
+// returns json
+app.get('/api/modules/:name', function(req, res, next) {
+  var name = req.params.name;
+  res.send({ some: 'json', name: name });
 });
 
 console.log('Your highness, at your service:'.yellow
