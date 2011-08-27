@@ -1,4 +1,5 @@
 var express = require('express')
+  , http = require('http')
   , app = express.createServer()
   , colors = require('colors')
   , fs = require('fs')
@@ -166,3 +167,83 @@ console.log('Your highness, at your service:'.yellow
   + ' http://localhost:%d'.magenta, PORT);
 
 app.listen(PORT);
+
+
+
+
+
+
+
+
+
+
+
+
+// Stream from NPM db for great realtime updates
+
+var last = 0;
+
+function getLastSeq(cb) {
+  get('search.npmjs.org', 80, '/api/_changes', function(data){
+    data = JSON.parse(data);
+    cb(data.last_seq);
+  });
+}
+
+getLastSeq(function(lastSeq){
+  last = lastSeq;
+  getChanges();
+  console.log();
+});
+
+function getChanges() {
+  http.get({
+    host: 'search.npmjs.org',
+    port: 80,
+    path: '/api/_changes?feed=continuous&since='+(last-10)
+  }, function(res) {
+    var cur = "";
+    res.on('data', function(chunk){
+      cur += chunk.toString();
+      try {
+        var data = JSON.parse(cur);
+        last = data.seq || data.last_seq;
+        if(data.hasOwnProperty('id')) {
+          updateModule(data);  
+        }
+        cur = "";
+      } catch (e) {}
+    });
+    res.on('end', getChanges);
+    res.on('error', getChanges);
+  });
+}
+
+function updateModule(data) {
+  console.log("Updating " + data.id);
+  get('search.npmjs.org', 80, '/api/'+data.id, function(res){
+    res = JSON.parse(res);
+    if(res.hasOwnProperty('error')) {
+      console.log(data.id, res);
+    } else {
+      // Update object
+    }
+  });
+}
+
+
+function get(host, port, path, cb) {
+  http.get({
+    host: host,
+    port: port,
+    path: path
+  }, function(res) {
+    var cur = "";
+    res.on('data', function(chunk){
+      cur += chunk.toString();
+    });
+    res.on('end', function(){
+      cb(cur);
+    });
+  });
+}
