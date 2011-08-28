@@ -51,14 +51,14 @@ exports.run = function (module, runner) {
 
   // ok, npm must be ready now, continue with the install
   // install(here, module_name, cb);
-  npm.commands.install(__dirname, module, function (err, data) {
+  npm.commands.install(__dirname + "/test_modules", module, function (err, data) {
     if (err) {
       r.emit('complete', 1, null, err);
       return;
     }
 
     // all modules are installed locally to prevent external problems
-    var module_path = __dirname + "/node_modules/" + module;
+    var module_path = __dirname + "/test_modules/node_modules/" + module;
 
     // load the modules package.json
     var pack = JSON.parse(

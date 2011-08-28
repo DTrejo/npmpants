@@ -37,9 +37,13 @@ var RunnerPrototype = {
 
     // run the command and pass everything else from the split as args
     // (expresso ./tests, node test/test.js)
+    var env = _.extend(process.env, this.commandLine.envs);
+    env["NODE_PATH"] = "./test_suites:" + process.env["NODE_PATH"];
+
+    console.log(run_path);
     var p = cp.spawn(this.commandLine.cmd, this.commandLine.args, {
       cwd: run_path,
-      env: _.extend(process.env, this.commandLine.envs)
+      env: env 
     });
 
     p.stdout.on("data", _.bind(this.onOut, this));
@@ -61,7 +65,10 @@ var RunnerPrototype = {
     // this will prevent the need for global install of a test suite
     // hopefully helping once we are overloading the suite to grab results
     if (cmd[0] && cmd[0].indexOf("expresso") > -1) {
-      this.commandLine.cmd = path.join(process.cwd(), "/node_modules/expresso/bin/expresso");
+      this.commandLine.cmd = path.join(process.cwd(), "/test_suites/expresso/bin/expresso");
+    } else if(cmd[0] && cmd[0].indexOf("tap") > -1) {
+      this.commandLine.envs.TAP = 1;
+      this.commandLine.cmd = path.join(process.cwd(), "/test_suites/tap/bin/tap");
     } else {
       this.commandLine.cmd = cmd[0];
     }
@@ -71,6 +78,7 @@ var RunnerPrototype = {
     // console.log(this.commandLine);
   },
   onErr: function (err) {
+    console.log("[APP ERROR] " + err);
     this.emit("error", err);
   },
 
@@ -79,6 +87,7 @@ var RunnerPrototype = {
   },
 
   onOut: function (data) {
+    console.log("[APP] " + data);
     this.emit('data', data);
   }
 };
