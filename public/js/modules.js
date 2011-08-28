@@ -1,15 +1,17 @@
 // runs on /modules/
 $(document).ready(function() {
   function showPackageInfo() {
+    console.log('showPackageInfo');
     var noResultFound = {
       name: 'Module Not Found'
     , description: 'Module not found'
     , repository: { github: '' }
     , author: { name: '' }
     };
-
+    spinner(true);
     $.getJSON('/api/modules/' + (window.location.hash.substring(1)), cb);
     function cb(data, status) {
+      spinner(false);
       if (status === 'success') {
 
         if (!data || !data.name) {
@@ -43,6 +45,9 @@ $(document).ready(function() {
         // test results
         if (data['test-results']) {
           insertResults(data['test-results']);
+        } else {
+          $('#results .result').remove();
+          $('#results').append('<tr class="result"><td>No Results</td></tr>');
         }
 
       } else {
@@ -59,33 +64,43 @@ $(document).ready(function() {
       , Darwin: 'mac'
       , Windows: 'windows'
       , Cygwin: 'windows'
-      }
-      , result = {}
-      , row, klass;
+      };
 
     if (results.length === 0) return;
 
     $('#results .result').remove();
-    _.each(results, function(el, i) {
-      el = el.value;
-      console.log(el.name, el.passed, el.system, el.version);
+    console.log(results);
+    var tests = results.tests;
+    for (var moduleVersion in tests) {
+      for (var system in tests[moduleVersion]) {
+        for (var nodeVersion in tests[moduleVersion][system]) {
+          var data = tests[moduleVersion][system][nodeVersion];
+          appendTestResult(moduleVersion, system, nodeVersion, data);
+        }
+      }
+    }
 
-      row =
+    function appendTestResult(version, system, node, data) {
+      console.log(version, system, node, data.passed);
+      var row =
       $('#results .template')
         .clone()
         .removeClass('hidden template')
         .addClass('result');
 
-      klass = sysToId[el.system.split(' ')[0]];
+      var klass = sysToId[system.split(' ')[0]];
       $('td', row).removeClass('greencheck redx').empty();
       $('.' + klass, row)
-        .text(el.version)
-        .addClass(el.passed ? 'greencheck' : 'redx')
-        .attr('title', el.passed ? 'passed!' : 'failed');
-      $('.node', row).text(el.node);
+        .text(version)
+        .addClass(data.passed ? 'greencheck' : 'redx')
+        .attr('title', data.passed ? 'passed!' : 'failed');
+      $('.node', row).text(node);
 
       table.append(row);
-    });
+    }
+  }
+  function spinner(on) {
+    $('#spinner').css('visibility', on ? 'visible' : 'hidden');
   }
 
   // Bind the event.

@@ -31,6 +31,7 @@ app.use(express.static(__dirname + '/public'));
 var nameToUrl;
 function toUrl(moduleName) {
   if (nameToUrl === undefined) {
+    console.time('generating toUrl map');
     nameToUrl = {};
     // lazily create the map. first request will be slow, but it's ok.
     var data = require('./public/json/packages.json').data
@@ -44,6 +45,7 @@ function toUrl(moduleName) {
       pName = packages[i][0];
       nameToUrl[pName] = 'https://github.com/' + urls[i];
     }
+    console.timeEnd('generating toUrl map');
   }
   // use the map
   return nameToUrl[moduleName];
@@ -51,11 +53,14 @@ function toUrl(moduleName) {
 
 // goes to npmjs.org and returns the package.json for a given module.
 function getPackageJSON(moduleName, cb) {
+  console.time('getPackageJSON');
   var url = 'http://search.npmjs.org/api/' + moduleName;
   request(url, function (error, response, body) {
     if (!error && response.statusCode === 200) {
+      console.timeEnd('getPackageJSON');
       cb(null, JSON.parse(body));
     } else {
+      console.timeEnd('getPackageJSON');
       cb(error);
     }
   });
@@ -73,9 +78,12 @@ app.get('/api/modules/:name', function (req, res, next) {
       packageJSON.repository = packageJSON.repository || {};
       packageJSON.repository.github = githubURL;
       db.get(name, function (err, results) {
-        if (err) console.log('getErr', err);
-        packageJSON['test-results'] = results;
-        res.send(packageJSON);
+        if (err || err && (err.error === 'not_found')) {
+          res.send(packageJSON);
+        } else {
+          packageJSON['test-results'] = results;
+          res.send(packageJSON);
+        }
       });
     } else {
       res.send(packageJSON);
