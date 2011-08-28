@@ -62,18 +62,43 @@ function getPackageJSON(moduleName, cb) {
 }
 
 // Goes to our own couchDB and gets the test results for this module.
-// TODO don't use a temporary view, they are super slow!
-// TODO make the view if it doesn't already exist, then query it.
-function getTestResults(name, cb) {
-  console.log('looking for module in couchDB:', name);
-  db.temporaryView({
-    map: 'function(doc) {\
-      if (doc.name === "' + name + '") {\
-        emit(doc._id, doc);\
-      }\
-    }'
+// make the view if it doesn't already exist, then query it.
+function getTestResults(name, callback) {
+  console.time('getTestResults');
+  queryView(function(err, res) {
+    if (err) {
+      if (err.error === 'not_found' || err.reason === 'missing') {
+        createView(queryView);
+      } else {
+        console.timeEnd('getTestResults');
+        throw err;
+      }
+    } else {
+      callback(err, res);
+    }
+  });
+
+  function createView(cb) {
+    console.log('creating couchDB view for', name);
+    var options = {};
+    // the view has the same name as the module
+    options[name] = {
+      // TODO: security
+      map: 'function(doc) {\
+        if (doc.name === "' + name + '") {\
+          emit(doc._id, doc);\
+        }\
+      }'
+    }
+    db.save('_design/modules', options);
   }
-  , cb);
+  function queryView(cb) {
+    // TODO: security
+    db.view('modules/' + name, function (err, res) {
+      console.timeEnd('getTestResults');
+      cb(err, res);
+    });
+  }
 }
 
 app.get('/api/modules/:name', function (req, res, next) {
