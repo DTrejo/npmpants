@@ -66,13 +66,11 @@ exports.run = function (module, runner) {
     );
 
     // we only care about modules that provide a test in package.json
-    if (!(pack.scripts && pack.scripts.test)) {
-      throw new Error("pack needs to define scripts.test");
-    }
     r.on('complete', function (code, sig, err) {
       console.log('complete>', module, code, sig,
                   err && err.message, exports.UNAME);
-      db.save((module + '.' + pack.version + '.' + exports.UNAME + '.' + process.version).replace(/\s/g, '_'),
+      db.save((module + '.' + pack.version + '.' + exports.UNAME + '.'
+              + process.version).replace(/\s/g, '_'),
               { name: module,
                 version: pack.version,
                 passed: code === 0,
@@ -80,12 +78,17 @@ exports.run = function (module, runner) {
                 node: process.version,
                 err: err && err.message});
     });
+    r.on('error', function (err) {
+      console.log('Something went wrong: ' + err);
+    });
 
-    // tell the runner to go to work
-    r.run(pack.scripts.test, module_path);
-  });
-  r.on('error', function (err) {
-    console.log('Something went wrong: ' + err);
+    if (pack.scripts && pack.scripts.test) {
+      // tell the runner to go to work
+      r.run(pack.scripts.test, module_path);
+    } else {
+      r.emit('complete', 1, null
+        , { message: "package needs to define scripts.test" });
+    }
   });
 
   return r;

@@ -10,5 +10,5 @@ var server = require('http').createServer(function (req, res) {
 server.listen(11235);
 
 addToQueue = function (name) {
-  require('slave').run(name);
+  require('./').run(name);
 };

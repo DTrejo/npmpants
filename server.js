@@ -135,7 +135,7 @@ function getDbChanges() {
   http.get({
     host: 'hollaback.iriscouch.com',
     port: 80,
-    path: '/testresults/_changes?feed=continuous&since='+(lastDbSeq)
+    path: '/testresults/_changes?feed=continuous&since='+(lastDbSeq - 10)
   }, function(res) {
     var cur = "";
     res.on('data', function(chunk){
@@ -196,7 +196,7 @@ function getNpmChanges() {
   http.get({
     host: 'search.npmjs.org',
     port: 80,
-    path: '/api/_changes?feed=continuous&since='+(lastNpmSeq)
+    path: '/api/_changes?feed=continuous&since='+(lastNpmSeq - 10)
   }, function(res) {
     var cur = "";
     res.on('data', function(chunk){
@@ -235,7 +235,8 @@ function updateModule(data) {
 
 function alertSlaves(data) {
   // Tell slaves to rerun tests for module specified in data
-  get('localhost', 11235, '/', function() {}); // only solaris at the moment!
+  // only solaris at the moment!
+  get('localhost', 11235, '/' + data.id, function() {});
   // TODO keep track of remote slaves. yepppp.
 }
 
