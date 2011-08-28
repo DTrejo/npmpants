@@ -6,6 +6,14 @@
   color: red;
 }
 
+.module-results div {
+  padding: 8px;
+}
+
+.module-name {
+  vertical-align: top;
+}
+
 .result-version {
   float: left;
 }
