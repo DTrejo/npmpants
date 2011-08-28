@@ -98,6 +98,12 @@ app.get('/api/modules/:name', function (req, res, next) {
   });
 });
 
+app.get('/api/testresults', function(req, res) {
+  get('hollaback.iriscouch.com', 80, '/testresults/_all_docs?include_docs=true', function(data){
+    res.send(data);
+  });
+});
+
 console.log('Your highness, at your service:'.yellow
   + ' http://localhost:%d'.magenta, PORT);
 
