@@ -53,8 +53,8 @@ h1 a {
   text-transform: uppercase;
   word-break: break-all;
 }
-#results th {
-  text-align: left;
+#results th, #results td {
+  text-align: center;
 }
 
 .greencheck, .redx {
