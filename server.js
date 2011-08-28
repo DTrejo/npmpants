@@ -143,7 +143,7 @@ function getDbChanges() {
     port: 80,
     path: '/testresults/_changes?feed=continuous&since='+(lastDbSeq)
   }, function(res) {
-    var cur = "";
+    var cur = '';
     res.on('data', function(chunk){
       cur += chunk.toString();
       try {
@@ -155,7 +155,7 @@ function getDbChanges() {
         if(data.hasOwnProperty('id')) {
           updateResults(data);
         }
-        cur = "";
+        cur = '';
       } catch (e) {}
     });
     res.on('end', getDbChanges);
@@ -169,9 +169,9 @@ function updateResults(data) {
     if(res.hasOwnProperty('error')) {
       console.log(data.id, res);
     } else {
-      console.log("Updating results for " + res.name + '@' + res.version, res.system, res.node);
+      console.log('Updating results for ' + res.name + '@' + res.version, res.system, res.node);
       // Update object
-      updateRecentTests(res);  
+      updateRecentTests(res);
     }
   });
 }
@@ -203,7 +203,7 @@ function getNpmChanges() {
     port: 80,
     path: '/registry/_changes?feed=continuous&since='+(lastNpmSeq)
   }, function(res) {
-    var cur = "";
+    var cur = '';
     res.on('data', function(chunk){
       cur += chunk.toString();
       try {
@@ -216,7 +216,7 @@ function getNpmChanges() {
         if(data.hasOwnProperty('id')) {
           updateModule(data);
         }
-        cur = "";
+        cur = '';
       } catch (e) {}
     });
     res.on('end', getNpmChanges);
@@ -225,7 +225,7 @@ function getNpmChanges() {
 }
 
 function updateModule(data) {
-  console.log("Updating " + data.id);
+  console.log('Updating ' + data.id);
   get('hollaback.iriscouch.com', 80, '/registry/'+data.id, function(res){
     res = JSON.parse(res);
     if(res.hasOwnProperty('error')) {
@@ -256,7 +256,7 @@ function get(host, port, path, cb) {
     port: port,
     path: path
   }, function(res) {
-    var cur = "";
+    var cur = '';
     res.on('data', function(chunk){
       cur += chunk.toString();
     });

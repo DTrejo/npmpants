@@ -1,10 +1,10 @@
-var fs = require("fs"),
-    npm = require("npm"),
-    spawn = require("child_process").spawn,
+var fs = require('fs'),
+    npm = require('npm'),
+    spawn = require('child_process').spawn,
     exec = require('child_process').exec,
 
-    Runner = require("./lib/runner"),
-    util = require("util"),
+    Runner = require('./lib/runner'),
+    util = require('util'),
     cradle = require('cradle');
 
 var connection = new cradle.Connection('hollaback.iriscouch.com', 80, {
@@ -17,7 +17,8 @@ var db = connection.database('testresults');
 
 var queue = [], ready = false, getUname;
 
-var config = { loglevel: 'silent' };
+var config = { loglevel: 'silent',
+               cwd: __dirname + '/test_modules' };
 
 // load needs to be call before any npm.commands can be run
 // but run needs to be call externally so we cannot do install from with in load
@@ -58,11 +59,11 @@ exports.run = function (module, runner) {
     // return the runner so other components can subscribe to completed events
     return r;
   }
-  console.log("Installing " + module);
+  console.log('Installing ' + module);
 
   // ok, npm must be ready now, continue with the install
   // install(here, module_name, cb);
-  npm.commands.install(__dirname + "/test_modules", module, function (err, data) {
+  npm.commands.install(config.cwd, module, function (err, data) {
     var version;
     if (Array.isArray(data) && Array.isArray(data[data.length - 1])) {
       version = data[data.length - 1][0];
@@ -79,6 +80,7 @@ exports.run = function (module, runner) {
                 system: exports.UNAME,
                 node: process.version,
                 message: message});
+      npm.commands.uninstall(['../slave/test_modules/node_modules/' + module], Function.prototype);
       exports.spool();
     });
     r.on('error', function (err) {
@@ -92,11 +94,11 @@ exports.run = function (module, runner) {
     }
 
     // all modules are installed locally to prevent external problems
-    var module_path = __dirname + "/test_modules/node_modules/" + module;
+    var module_path = __dirname + '/test_modules/node_modules/' + module;
 
     // load the modules package.json
     var pack = JSON.parse(
-      fs.readFileSync(module_path + "/package.json").toString()
+      fs.readFileSync(module_path + '/package.json').toString()
     );
 
     if (version === undefined) {
@@ -105,15 +107,15 @@ exports.run = function (module, runner) {
 
     // we only care about modules that provide a test in package.json
     if (!(pack.scripts && pack.scripts.test)) {
-      //throw new Error("pack needs to define scripts.test");
-      console.log('pack needs to define scripts.test');
+      //throw new Error('pack needs to define scripts.test');
+      console.log('package needs to define scripts.test');
       return;
     }
     if (pack.scripts && pack.scripts.test) {
       // tell the runner to go to work
       r.run(pack.scripts.test, module_path);
     } else {
-      r.emit('complete', false, "package needs to define scripts.test");
+      r.emit('complete', false, 'package needs to define scripts.test');
     }
   });
 
