@@ -3,21 +3,21 @@ var generic = require("./generic"),
     util = require("util"),
     _ = require('underscore');
 
-function TapHandler(cmd) {
+function VowsHandler(cmd) {
   generic.apply(this, arguments);
 }
 
-util.inherits(TapHandler, generic);
+util.inherits(VowsHandler, generic);
 
-module.exports = TapHandler;
+module.exports = VowsHandler;
 
-TapHandler.prototype.run = function(workingDir) {
+VowsHandler.prototype.run = function(workingDir) {
   var env = _.extend(process.env, this.commandLine.envs);
 
   console.log(this.commandLine.cmd, this.commandLine.args);
 
   // last output format wins
-  //this.commandLine.args.push('--json');
+  this.commandLine.args.push('--json');
 
   var p = cp.spawn(this.commandLine.cmd, this.commandLine.args, {
     cwd: workingDir,
@@ -29,16 +29,16 @@ TapHandler.prototype.run = function(workingDir) {
   p.on("exit", _.bind(this.onExit, this));
 };
 
-TapHandler.prototype.output = '';
-TapHandler.prototype.onStd = function (data) {
+VowsHandler.prototype.output = '';
+VowsHandler.prototype.onStd = function (data) {
   this.output += data;
 }
 
-TapHandler.prototype.onErr = function(err, data) {
-  console.log("error in TapHandler", err.toString(), data);
+VowsHandler.prototype.onErr = function(err, data) {
+  console.log("error in VowsHandler", err.toString(), data);
 };
 
-TapHandler.prototype.onExit = function(code, sig) {
+VowsHandler.prototype.onExit = function(code, sig) {
   /*console.log('===');
   console.log(this.output); 
   console.log('===');*/

@@ -3,15 +3,15 @@ var generic = require("./generic"),
     util = require("util"),
     _ = require('underscore');
 
-function TapHandler(cmd) {
+function JasmineNodeHandler(cmd) {
   generic.apply(this, arguments);
 }
 
-util.inherits(TapHandler, generic);
+util.inherits(JasmineNodeHandler, generic);
 
-module.exports = TapHandler;
+module.exports = JasmineNodeHandler;
 
-TapHandler.prototype.run = function(workingDir) {
+JasmineNodeHandler.prototype.run = function(workingDir) {
   var env = _.extend(process.env, this.commandLine.envs);
 
   console.log(this.commandLine.cmd, this.commandLine.args);
@@ -29,16 +29,16 @@ TapHandler.prototype.run = function(workingDir) {
   p.on("exit", _.bind(this.onExit, this));
 };
 
-TapHandler.prototype.output = '';
-TapHandler.prototype.onStd = function (data) {
+JasmineNodeHandler.prototype.output = '';
+JasmineNodeHandler.prototype.onStd = function (data) {
   this.output += data;
 }
 
-TapHandler.prototype.onErr = function(err, data) {
-  console.log("error in TapHandler", err.toString(), data);
+JasmineNodeHandler.prototype.onErr = function(err, data) {
+  console.log("error in JasmineNodeHandler", err.toString(), data);
 };
 
-TapHandler.prototype.onExit = function(code, sig) {
+JasmineNodeHandler.prototype.onExit = function(code, sig) {
   /*console.log('===');
   console.log(this.output); 
   console.log('===');*/
