@@ -34,6 +34,16 @@ npm.load(config, function () {
   });
 });
 
+var runCount = 0, spool = [];
+exports.spool = function (module) {
+  if (module !== undefined) {
+    spool.push(module);
+  }
+  while (spool.length && runCount++ < 10) {
+    exports.run(spool.shift());
+  }
+};
+
 exports.run = function (module, runner) {
   // create out runner even if npm isn't ready
   var r = runner || new Runner();
@@ -71,6 +81,8 @@ exports.run = function (module, runner) {
       return;
     }
     r.on('complete', function (success, message) {
+      runCount--;
+      exports.spool();
       console.log('complete>', module, success, message, exports.UNAME);
       db.save((module + '.' + pack.version + '.' + exports.UNAME + '.'
               + process.version).replace(/\s/g, '_'),

@@ -1,7 +1,7 @@
 var options = {
   host: 'search.npmjs.org',
   port: '80',
-  path: '/api/_all_docs?include_docs=true&limit=50'
+  path: '/api/_all_docs?include_docs=true'
 };
 
 var http = require('http'),
@@ -17,8 +17,8 @@ var http = require('http'),
  */
 
 var interpretJSON = function (obj) {
-  obj.rows.map(function (el, i) {
-    if (!el.id) {
+  obj.rows.forEach(function (el, i) {
+    if (!el.id || !el.doc.versions) {
       return;
     }
     var versions = Object.keys(el.doc.versions);
@@ -27,7 +27,7 @@ var interpretJSON = function (obj) {
     var latest = el.doc.versions[versions.pop()];
 
     if (latest && latest.scripts && latest.scripts.test !== undefined) {
-      var s = slave.run(el.id);
+      var s = slave.spool(el.id);
     }
   });
 };

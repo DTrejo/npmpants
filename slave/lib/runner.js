@@ -22,8 +22,7 @@ var killTimeout = 15000;
 var RunnerPrototype = {
   run: function (cmd, run_path) {
 
-
-    handler = this.createTestHandler(cmd, run_path);
+    var handler = this.createTestHandler(cmd, run_path);
 
     handler.on("complete", _.bind(this.onExit, this));
 
@@ -45,29 +44,28 @@ var RunnerPrototype = {
     // this.flagForDeath();
   },
 
-  createTestHandler: function(cmd, run_path) {
+  createTestHandler: function (cmd, run_path) {
     // split the command apart, cmd[0] will be the executable
-    commandLine = this.processCmdLine(cmd);
+    var commandLine = this.processCmdLine(cmd);
 
-    var handler;
+    var Handler;
     try {
-      handler = require("./handlers/" + commandLine.name);
+      Handler = require("./handlers/" + commandLine.name);
       console.log("created new '" + commandLine.name + "' test handler");
-    } catch(e) {
-    throw e;
-      handler = require("./handler/generic");
+    } catch (e) {
+      Handler = require("./handlers/generic");
     }
 
-    return new handler(commandLine, run_path);
+    return new Handler(commandLine, run_path);
   },
 
   processCmdLine: function (cmd) {
     var commandLine = {
       args: [],
-      cmd: "",
       envs: {},
       name: ""
-    }, env, cmd = cmd.split(" ");
+    }, env;
+    cmd = cmd.split(" ");
 
     commandLine.name = cmd[0];
 
