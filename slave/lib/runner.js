@@ -23,7 +23,7 @@ var RunnerPrototype = {
   run: function (cmd, run_path) {
 
 
-    handler = this.createTestHandler(cmd);
+    handler = this.createTestHandler(cmd, run_path);
 
     // run the command and pass everything else from the split as args
     // (expresso ./tests, node test/test.js)
@@ -43,7 +43,7 @@ var RunnerPrototype = {
     // this.flagForDeath();
   },
 
-  createTestHandler: function(cmd) {
+  createTestHandler: function(cmd, run_path) {
     // split the command apart, cmd[0] will be the executable
     commandLine = this.processCmdLine(cmd);
 
@@ -56,7 +56,7 @@ var RunnerPrototype = {
       handler = require("./handler/generic");
     }
 
-    return new handler(commandLine);
+    return new handler(commandLine, run_path);
   },
 
   processCmdLine: function (cmd) {

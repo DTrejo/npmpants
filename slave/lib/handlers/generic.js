@@ -4,25 +4,26 @@ var cp = require("child_process"),
     util = require("util"),
     _ = require("underscore");
 
-function TestHandler(cmd) {
+function TestHandler(cmd, workingDir) {
   events.EventEmitter.call(this);
 
   this.commandLine = cmd;
 
   console.log("new '" + cmd.name + "' TestHandler");
 
-  this.run();
+  this.run(workingDir);
 }
 
 module.exports = TestHandler;
 
 util.inherits(TestHandler, events.EventEmitter);
 
-TestHandler.prototype.run = function() {
+TestHandler.prototype.run = function(workingDir) {
   var env = _.extend(process.env, this.commandLine.envs);
 
+console.log(this.commandLine.cmd);
   var p = cp.spawn(this.commandLine.cmd, this.commandLine.args, {
-    cwd: path.join(process.cwd(), "/test_modules/node_modules/", this.commandLine.name),
+    cwd: workingDir,
     env: env
   });
 
@@ -40,5 +41,5 @@ TestHandler.prototype.onStd = function(data) {
 }
 
 TestHandler.prototype.onExit = function(code, sig) {
-  console.log(code, sig);
+  this.emit("complete", this.successful, this.message);
 }
