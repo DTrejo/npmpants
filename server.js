@@ -135,14 +135,17 @@ function getDbChanges() {
   http.get({
     host: 'hollaback.iriscouch.com',
     port: 80,
-    path: '/testresults/_changes?feed=continuous&since='+(lastDbSeq - 10)
+    path: '/testresults/_changes?feed=continuous&since='+(lastDbSeq)
   }, function(res) {
     var cur = "";
     res.on('data', function(chunk){
       cur += chunk.toString();
       try {
         var data = JSON.parse(cur);
-        lastDbSeq = data.seq || data.last_seq;
+        var newSeq = data.seq || data.last_seq;
+        if(newSeq > lastDbSeq) {
+          lastDbSeq = newSeq;
+        }
         if(data.hasOwnProperty('id')) {
           updateResults(data);
         }
@@ -185,7 +188,7 @@ var lastNpmSeq = 0;
 
 // Gets last change id
 
-get('search.npmjs.org', 80, '/api/_changes', function(data){
+get('hollaback.iriscouch.com', 80, '/registry/_changes', function(data){
   data = JSON.parse(data);
   lastNpmSeq = data.last_seq;
   getNpmChanges();
@@ -194,16 +197,20 @@ get('search.npmjs.org', 80, '/api/_changes', function(data){
 
 function getNpmChanges() {
   http.get({
-    host: 'search.npmjs.org',
+    host: 'hollaback.iriscouch.com',
     port: 80,
-    path: '/api/_changes?feed=continuous&since='+(lastNpmSeq - 10)
+    path: '/registry/_changes?feed=continuous&since='+(lastNpmSeq)
   }, function(res) {
     var cur = "";
     res.on('data', function(chunk){
       cur += chunk.toString();
       try {
         var data = JSON.parse(cur);
-        lastNpmSeq = data.seq || data.last_seq;
+        var newSeq = data.seq || data.last_seq;
+        if(newSeq > lastNpmSeq) {
+          lastNpmSeq = newSeq;
+        }
+        console.log('lastnpmseq is', lastNpmSeq);
         if(data.hasOwnProperty('id')) {
           updateModule(data);
         }
@@ -217,7 +224,7 @@ function getNpmChanges() {
 
 function updateModule(data) {
   console.log("Updating " + data.id);
-  get('search.npmjs.org', 80, '/api/'+data.id, function(res){
+  get('hollaback.iriscouch.com', 80, '/registry/'+data.id, function(res){
     res = JSON.parse(res);
     if(res.hasOwnProperty('error')) {
       console.log(data.id, res);
