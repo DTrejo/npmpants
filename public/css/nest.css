@@ -16,6 +16,9 @@ label {
 h1, h2, h3 {
   font-family: 'Ubuntu', "Helvetica Neue", "HelveticaNeue", "Lucida Grande", Helvetica, Arial, sans-serif;
 }
+h2 {
+  border-bottom: 2px solid #999;
+}
 
 h1 a {
   text-decoration: none;
@@ -38,10 +41,27 @@ h1 a {
   font-family: monospace;
 }
 
+#results {
+  border-top: 2px solid #999;
+  width: 100%;
+}
+#results th .vert {
+  display: block;
+  width: 1em;
+  padding: 0em;
+  margin: 0em;
+  text-transform: uppercase;
+  word-break: break-all;
+}
+#results th {
+  text-align: left;
+}
+
 .greencheck, .redx {
   padding: .5em .5em;
   border-radius: 3px;
   font-family: monospace;
+  font-weight: bold;
 }
 .greencheck {
   background-color: green;

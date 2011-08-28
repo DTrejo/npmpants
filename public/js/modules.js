@@ -52,8 +52,39 @@ $(document).ready(function() {
   }
 
   function insertResults(results) {
-    console.log(results);
-    // TODO code this.
+    var table = $('#results')
+      , sysToId = {
+        Linux: 'linux'
+      , SunOS: 'solaris'
+      , Darwin: 'mac'
+      , Windows: 'windows'
+      , Cygwin: 'windows'
+      }
+      , result = {}
+      , row, klass;
+
+    if (results.length === 0) return;
+
+    $('#results .result').remove();
+    _.each(results, function(el, i) {
+      el = el.value;
+      console.log(el.name, el.passed, el.system, el.version);
+
+      row =
+      $('#results .template')
+        .clone()
+        .removeClass('hidden template')
+        .addClass('result');
+
+      klass = sysToId[el.system.split(' ')[0]];
+      $('td', row).removeClass('greencheck redx').empty();
+      $('.' + klass, row)
+        .text(el.version)
+        .addClass(el.passed ? 'greencheck' : 'redx');
+      $('.node', row).text(el.node);
+
+      table.append(row);
+    });
   }
 
   // Bind the event.
