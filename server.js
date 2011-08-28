@@ -91,9 +91,9 @@ app.get('/api/modules/:name', function (req, res, next) {
   });
 });
 
-app.get('/api/testresults', function(req, res) {
-  get('hollaback.iriscouch.com', 80, '/testresults/_all_docs?include_docs=true', function(data){
-    res.send(data);
+app.get('/api/results', function(req, res) {
+  get('hollaback.iriscouch.com', 80, '/results/_all_docs?include_docs=true', function(data){
+    res.send(JSON.stringify(JSON.parse(data).rows));
   });
 });
 

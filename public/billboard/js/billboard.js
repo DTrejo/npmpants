@@ -1,6 +1,8 @@
 (function(glob) {
+if(!("BB" in glob))
+  glob.BB = {};
 
-var BB = {
+glob.BB = {
   init: function() {
     this.fetchTestResults();
   },
@@ -9,7 +11,7 @@ var BB = {
     $.ajax({
       dataType: 'json',
       error: _.bind(this.handleFetchError, this),
-      url: "/api/testresults",
+      url: "/api/results",
       success: _.bind(this.handleFetchSuccess, this)
     });
   },
