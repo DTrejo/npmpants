@@ -27,7 +27,7 @@ $(document).ready(function() {
         if (name) moduleNames.push(data.rows[i].id);
       }
       input.autocomplete({
-        source: moduleNames
+        source: moduleNames.reverse()
       , delay: 100
       });
     } else {

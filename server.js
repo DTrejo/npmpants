@@ -37,7 +37,8 @@ function toUrl(moduleName) {
       , packages = data.packages
       , urls = data.urls
       , i = 0
-      , link = '';
+      , link = ''
+      , pName;
 
     for (i = 0; i < packages.length; i++) {
       pName = packages[i][0];
@@ -52,12 +53,12 @@ function toUrl(moduleName) {
 function getPackageJSON(moduleName, cb) {
   var url = 'http://search.npmjs.org/api/' + moduleName;
   request(url, function (error, response, body) {
-    if (!error && response.statusCode == 200) {
+    if (!error && response.statusCode === 200) {
       cb(null, JSON.parse(body));
     } else {
       cb(error);
     }
-  })
+  });
 }
 
 // Goes to our own couchDB and gets the test results for this module.
@@ -67,7 +68,7 @@ function getTestResults(name, cb) {
   console.log('looking for module in couchDB:', name);
   db.temporaryView({
     map: 'function(doc) {\
-      if (doc.module == "' + name + '") {\
+      if (doc.name === "' + name + '") {\
         emit(doc._id, doc);\
       }\
     }'
@@ -75,9 +76,9 @@ function getTestResults(name, cb) {
   , cb);
 }
 
-app.get('/api/modules/:name', function(req, res, next) {
+app.get('/api/modules/:name', function (req, res, next) {
   var name = req.params.name;
-  getPackageJSON(name, function(err, packageJSON) {
+  getPackageJSON(name, function (err, packageJSON) {
     if (err) console.log(err);
     packageJSON = packageJSON || {};
 
@@ -86,7 +87,7 @@ app.get('/api/modules/:name', function(req, res, next) {
     if (githubURL) {
       packageJSON.repository = packageJSON.repository || {};
       packageJSON.repository.github = githubURL;
-      getTestResults(name, function(err, results) {
+      getTestResults(name, function (err, results) {
         if (err) console.log(err);
         packageJSON['test-results'] = results;
         res.send(packageJSON);
