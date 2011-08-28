@@ -3,15 +3,15 @@ var generic = require("./generic"),
     util = require("util"),
     _ = require('underscore');
 
-function VowsHandler(cmd) {
+function WhiskeyHandler(cmd) {
   generic.apply(this, arguments);
 }
 
-util.inherits(VowsHandler, generic);
+util.inherits(WhiskeyHandler, generic);
 
-module.exports = VowsHandler;
+module.exports = WhiskeyHandler;
 
-VowsHandler.prototype.run = function(workingDir) {
+WhiskeyHandler.prototype.run = function(workingDir) {
   var env = _.extend(process.env, this.commandLine.envs);
 
   console.log(this.commandLine.cmd, this.commandLine.args);
@@ -29,16 +29,16 @@ VowsHandler.prototype.run = function(workingDir) {
   p.on("exit", _.bind(this.onExit, this));
 };
 
-VowsHandler.prototype.output = '';
-VowsHandler.prototype.onStd = function (data) {
+WhiskeyHandler.prototype.output = '';
+WhiskeyHandler.prototype.onStd = function (data) {
   this.output += data;
 }
 
-VowsHandler.prototype.onErr = function(err, data) {
-  console.log("error in VowsHandler", err.toString(), data);
+WhiskeyHandler.prototype.onErr = function(err, data) {
+  console.log("error in WhiskeyHandler", err.toString(), data);
 };
 
-VowsHandler.prototype.onExit = function(code, sig) {
+WhiskeyHandler.prototype.onExit = function(code, sig) {
   /*console.log('===');
   console.log(this.output); 
   console.log('===');*/

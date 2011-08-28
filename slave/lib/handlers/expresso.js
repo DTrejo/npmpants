@@ -3,21 +3,21 @@ var generic = require("./generic"),
     util = require("util"),
     _ = require('underscore');
 
-function VowsHandler(cmd) {
+function ExpressoHandler(cmd) {
   generic.apply(this, arguments);
 }
 
-util.inherits(VowsHandler, generic);
+util.inherits(ExpressoHandler, generic);
 
-module.exports = VowsHandler;
+module.exports = ExpressoHandler;
 
-VowsHandler.prototype.run = function(workingDir) {
+ExpressoHandler.prototype.run = function(workingDir) {
   var env = _.extend(process.env, this.commandLine.envs);
 
   console.log(this.commandLine.cmd, this.commandLine.args);
 
   // last output format wins
-  this.commandLine.args.push('--json');
+  //this.commandLine.args.push('--json');
 
   var p = cp.spawn(this.commandLine.cmd, this.commandLine.args, {
     cwd: workingDir,
@@ -29,19 +29,19 @@ VowsHandler.prototype.run = function(workingDir) {
   p.on("exit", _.bind(this.onExit, this));
 };
 
-VowsHandler.prototype.output = '';
-VowsHandler.prototype.onStd = function (data) {
+ExpressoHandler.prototype.output = '';
+ExpressoHandler.prototype.onStd = function (data) {
   this.output += data;
 }
 
-VowsHandler.prototype.onErr = function(err, data) {
-  console.log("error in VowsHandler", err.toString(), data);
+ExpressoHandler.prototype.onErr = function(err, data) {
+  console.log("error in ExpressoHandler", err.toString(), data);
 };
 
-VowsHandler.prototype.onExit = function(code, sig) {
-  /*console.log('===');
+ExpressoHandler.prototype.onExit = function(code, sig) {
+  console.log('===');
   console.log(this.output); 
-  console.log('===');*/
+  console.log('===');
   console.log("complete", code <= 0, sig);
   this.emit("complete", code <= 0, sig);
 };

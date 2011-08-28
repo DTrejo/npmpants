@@ -79,17 +79,20 @@ var RunnerPrototype = {
 
     // this will prevent the need for global install of a test suite
     // hopefully helping once we are overloading the suite to grab results
-    if (cmd[0] && cmd[0].indexOf("expresso") > -1) {
-      commandLine.cmd = path.join(process.cwd(), "/test_suites/expresso/bin/expresso");
+    /*if (cmd[0] && cmd[0].indexOf("expresso") > -1) {
+      commandLine.cmd = 'expresso'
     } else if (cmd[0] && cmd[0].indexOf("tap") > -1) {
       commandLine.envs.TAP = 1;
       commandLine.cmd = path.join(process.cwd(), "/test_suites/tap/bin/tap");
     } else {
       commandLine.cmd = cmd[0];
-    }
+    }*/
 
     commandLine.args = cmd.slice(1);
-
+    
+    // Set cmd to name of test suite, cmd[0]
+    commandLine.cmd = cmd[0];
+    
     return commandLine;
   },
   onErr: function (err) {

@@ -3,21 +3,21 @@ var generic = require("./generic"),
     util = require("util"),
     _ = require('underscore');
 
-function VowsHandler(cmd) {
+function NodeunitHandler(cmd) {
   generic.apply(this, arguments);
 }
 
-util.inherits(VowsHandler, generic);
+util.inherits(NodeunitHandler, generic);
 
-module.exports = VowsHandler;
+module.exports = NodeunitHandler;
 
-VowsHandler.prototype.run = function(workingDir) {
+NodeunitHandler.prototype.run = function(workingDir) {
   var env = _.extend(process.env, this.commandLine.envs);
 
   console.log(this.commandLine.cmd, this.commandLine.args);
 
   // last output format wins
-  this.commandLine.args.push('--json');
+  //this.commandLine.args.push('--json');
 
   var p = cp.spawn(this.commandLine.cmd, this.commandLine.args, {
     cwd: workingDir,
@@ -29,16 +29,16 @@ VowsHandler.prototype.run = function(workingDir) {
   p.on("exit", _.bind(this.onExit, this));
 };
 
-VowsHandler.prototype.output = '';
-VowsHandler.prototype.onStd = function (data) {
+NodeunitHandler.prototype.output = '';
+NodeunitHandler.prototype.onStd = function (data) {
   this.output += data;
 }
 
-VowsHandler.prototype.onErr = function(err, data) {
-  console.log("error in VowsHandler", err.toString(), data);
+NodeunitHandler.prototype.onErr = function(err, data) {
+  console.log("error in NodeunitHandler", err.toString(), data);
 };
 
-VowsHandler.prototype.onExit = function(code, sig) {
+NodeunitHandler.prototype.onExit = function(code, sig) {
   /*console.log('===');
   console.log(this.output); 
   console.log('===');*/
