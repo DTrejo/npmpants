@@ -51,8 +51,19 @@ $(document).ready(function() {
       }
     });
     for(var i = 0, ii = moduleArr.length; i < ii; i++) {
-      $("#recentbar").prepend($("<a></a>").addClass('recentitem').text(moduleArr[i]).attr('href', '/modules/#' + moduleArr[i]));
+      $("#recentbar").prepend($("<a></a>").addClass('recentitem').text(moduleArr[i]).prop('href', '/modules/#' + moduleArr[i]));
     }
-  }
+  };
   
+  // Add to list of recently updated tests
+  now.addToRecentTests = function(moduleArr) {
+    $(".recenttestitem").each(function(i) {
+      if(i > (9-moduleArr.length) ) {
+        $(this).remove();
+      }
+    });
+    for(var i = 0, ii = moduleArr.length; i < ii; i++) {
+      $("#recenttestbar").prepend($("<a></a>").addClass('recenttestitem').text(moduleArr[i]).prop('href', '/modules/#' + moduleArr[i]));
+    }
+  };
 });

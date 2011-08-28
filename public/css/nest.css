@@ -96,6 +96,6 @@ h1 a {
 .autocomplete div { padding:2px 5px; white-space:nowrap; }
 .autocomplete strong { font-weight:normal; color:#3399FF; }
 
-.recentitem {
+.recentitem, .recenttestitem {
   padding-right: 10px;
 }

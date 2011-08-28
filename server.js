@@ -165,11 +165,7 @@ function updateResults(data) {
     } else {
       console.log("Updating results for " + res.name + '@' + res.version, res.system, res.node);
       // Update object
-      everyone.count(function(count){
-        if(count > 0) {
-          everyone.now.testUpdated(res);
-        }
-      });
+      updateRecentTests(res);  
     }
   });
 }
@@ -268,6 +264,7 @@ function get(host, port, path, cb) {
 // Keep buffer of 10 recent updates
 
 var recent = [];
+var recentTests = [];
 
 function updateRecent(data) {
   if(recent.length > 10) {
@@ -281,6 +278,22 @@ function updateRecent(data) {
   });
 }
 
+function updateRecentTests(data) {
+  if(recentTests.length > 10) {
+    recentTests.shift();
+  }
+  recentTests.push(data.name);
+  everyone.count(function(count){
+    if(count > 0) {
+      everyone.now.addToRecentTests([data.name]);
+    }
+  });
+}
+
 nowjs.on('connect', function(){
   this.now.addToRecent(recent);
+  this.now.addToRecentTests(recentTests);
 });
+
+
+
