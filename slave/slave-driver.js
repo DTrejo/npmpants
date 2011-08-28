@@ -66,6 +66,11 @@ exports.run = function (module, runner) {
     );
 
     // we only care about modules that provide a test in package.json
+    if (!(pack.scripts && pack.scripts.test)) {
+      //throw new Error("pack needs to define scripts.test");
+      console.log('pack needs to define scripts.test');
+      return;
+    }
     r.on('complete', function (code, sig, err) {
       console.log('complete>', module, code, sig,
                   err && err.message, exports.UNAME);

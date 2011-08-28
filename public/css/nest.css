@@ -75,3 +75,7 @@ h1 a {
 .autocomplete .selected { background:#F0F0F0; }
 .autocomplete div { padding:2px 5px; white-space:nowrap; }
 .autocomplete strong { font-weight:normal; color:#3399FF; }
+
+.recentitem {
+  padding-right: 10px;
+}

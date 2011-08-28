@@ -229,14 +229,14 @@ function updateModule(data) {
         }
       });*/
       alertSlaves(data);
+      updateRecent(data);
     }
   });
 }
 
 function alertSlaves(data) {
   // Tell slaves to rerun tests for module specified in data
-  // only solaris at the moment!
-  get('localhost', 11235, '/' + data.id, function() {});
+  get('127.0.0.1', 11235, '/' + data.id, function() {}); // only solaris at the moment!
   // TODO keep track of remote slaves. yepppp.
 }
 
@@ -256,3 +256,24 @@ function get(host, port, path, cb) {
     });
   });
 }
+
+
+// Keep buffer of 10 recent updates
+
+var recent = [];
+
+function updateRecent(data) {
+  if(recent.length > 10) {
+    recent.shift();
+  }
+  recent.push(data.id);
+  everyone.count(function(count){
+    if(count > 0) {
+      everyone.now.addToRecent([data.id]);
+    }
+  });
+}
+
+nowjs.on('connect', function(){
+  this.now.addToRecent(recent);
+});
