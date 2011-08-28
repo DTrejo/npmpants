@@ -18,6 +18,7 @@
   border-right: 2px outset black;
   margin: 0;
   padding: 0;
+  padding-top: 14px;
   vertical-align: top;
 }
 
@@ -27,4 +28,12 @@
 
 .result-platforms {
   float: left;
+}
+
+#spinner {
+  background-image: url(/images/spinner.gif);
+  height: 18px;
+  margin: 0 auto;
+  margin-top: 20px;
+  width: 18px;
 }

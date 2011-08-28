@@ -3,6 +3,9 @@
     init: function() {
       this.testCollection = new BB.Collections.TestResults;
       this.testCollection.fetch();
+      this.testCollection.bind("reset", function() {
+        $("#spinner").hide();
+      });
     }
   }
 
