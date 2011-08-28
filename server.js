@@ -28,7 +28,7 @@ app.use(express.static(__dirname + '/public'));
 
 // converts a module name to a github URL for that module, if it exists.
 // caches a map of moduleName --> url.
-var nameToUrl = undefined;
+var nameToUrl;
 function toUrl(moduleName) {
   if (nameToUrl === undefined) {
     nameToUrl = {};
