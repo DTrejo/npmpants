@@ -7,13 +7,15 @@ var fs = require('fs'),
     util = require('util'),
     cradle = require('cradle');
 
+const NODE_VERSION = process.version;
+
 var connection = new cradle.Connection('hollaback.iriscouch.com', 80, {
   cache: true,
   raw: false,
   auth: { username: 'hollaback', password: 'momasaidknockyouout' }
 });
 
-var db = connection.database('testresults');
+var db = connection.database('results');
 
 var queue = [], ready = false, getUname;
 
@@ -72,14 +74,27 @@ exports.run = function (module, runner) {
     r.on('complete', function (success, message) {
       runCount--;
       console.log('complete>', module, success, message, exports.UNAME);
-      db.save((module + '.' + version + '.' + exports.UNAME + '.'
-              + process.version).replace(/\s/g, '_'),
-              { name: module,
-                version: version,
-                passed: success,
-                system: exports.UNAME,
-                node: process.version,
-                message: message});
+
+      db.get(module, function(err, doc) {
+        if(err) {
+          doc = {};
+          doc.name = module;
+          doc.results = {};
+        }
+
+        if(!doc.results[version])
+          doc.results[version] = {};
+
+        if(!doc.results[version][exports.UNAME])
+          doc.results[version][exports.UNAME] = {};
+
+        doc.results[version][exports.UNAME][NODE_VERSION] = {
+          passed: success,
+          message: message
+        }
+        
+        db.save(module, doc);
+      });
       npm.commands.uninstall(['../slave/test_modules/node_modules/' + module], Function.prototype);
       exports.spool();
     });
