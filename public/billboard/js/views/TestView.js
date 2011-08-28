@@ -10,7 +10,7 @@ BB.Views.TestView = BB.Views.BasicView.extend({
               <div class="result-platforms">\
                 <div class="result-platform"><%=platform.split(" ")[0]%></div>\
                 <% _.each(results, function(result, nodeVersion) { %>\
-                  <div class="result-node-version <%=result.passed ? "passed":"failed"%>"><%=nodeVersion%></div>\
+                  <div class="result-node-version <%=result.passed ? "greencheck":"redx"%>"><%=nodeVersion%></div>\
                 <% }); %>\
               </div>\
             <%});%>\

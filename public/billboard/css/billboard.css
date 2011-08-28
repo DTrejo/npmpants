@@ -10,7 +10,14 @@
   padding: 8px;
 }
 
+.result-platforms div.result-node-version {
+  margin: 12px;
+}
+
 .module-name {
+  border-right: 2px outset black;
+  margin: 0;
+  padding: 0;
   vertical-align: top;
 }
 
