@@ -54,9 +54,22 @@ now.addToRecent = function (moduleArr) {
       $(this).remove();
     }
   });
+  var timeAgo;
   for (var i = 0, ii = moduleArr.length; i < ii; i++) {
     console.log('NAME', moduleArr[i].name);
-    $("#recentbar").prepend($("<a></a>").addClass('recentitem').text(moduleArr[i].name).prop('href', '/modules/#' + moduleArr[i].name));
+    timeAgo = ago(new Date(moduleArr[i].time.modified));
+
+    $("#recentbar").prepend(
+      $("<a></a>")
+        .addClass('recentitem')
+        .text(moduleArr[i].name + ' (' + timeAgo + ')')
+        .prop('href', '/modules/#' + moduleArr[i].name)
+    );
+  }
+
+  function ago(a,b,c) {
+    for(b=[1e3,60,60,24],a=new Date-a,c=0;a>2*b[c];a/=b[c++]);
+    return~~a+" "+"m0second0minute0hour0day".split(0)[c]+"s ago";
   }
 };
 

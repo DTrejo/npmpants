@@ -36,6 +36,10 @@ h1 a {
   -moz-box-shadow: 5px 5px 5em #333;
   box-shadow: 5px 5px 5em #333;
 }
+.recent > div, .recentbar {
+  width: 100%;
+  display: block;
+}
 
 #name, #repo {
   font-family: monospace;
