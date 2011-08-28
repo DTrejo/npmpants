@@ -16,7 +16,7 @@ var express = require('express')
     , raw: false
     , auth: { username: 'hollaback', password: 'momasaidknockyouout' }
   })
-  , db = connection.database('testresults')
+  , db = connection.database('results')
 
   // constants
   , PORT = parseInt(process.env.PORT, 10) || 8000
@@ -61,46 +61,6 @@ function getPackageJSON(moduleName, cb) {
   });
 }
 
-// Goes to our own couchDB and gets the test results for this module.
-// make the view if it doesn't already exist, then query it.
-function getTestResults(name, callback) {
-  console.time('getTestResults');
-  queryView(function(err, res) {
-    if (err) {
-      if (err.error === 'not_found' || err.reason === 'missing') {
-        createView(queryView);
-      } else {
-        console.timeEnd('getTestResults');
-        throw err;
-      }
-    } else {
-      callback(err, res);
-    }
-  });
-
-  function createView(cb) {
-    console.log('creating couchDB view for', name);
-    var options = {};
-    // the view has the same name as the module
-    options[name] = {
-      // TODO: security
-      map: 'function(doc) {\
-        if (doc.name === "' + name + '") {\
-          emit(doc._id, doc);\
-        }\
-      }'
-    }
-    db.save('_design/modules', options);
-  }
-  function queryView(cb) {
-    // TODO: security
-    db.view('modules/' + name, function (err, res) {
-      console.timeEnd('getTestResults');
-      cb(err, res);
-    });
-  }
-}
-
 app.get('/api/modules/:name', function (req, res, next) {
   var name = req.params.name;
   getPackageJSON(name, function (err, packageJSON) {
@@ -112,8 +72,8 @@ app.get('/api/modules/:name', function (req, res, next) {
     if (githubURL) {
       packageJSON.repository = packageJSON.repository || {};
       packageJSON.repository.github = githubURL;
-      getTestResults(name, function (err, results) {
-        if (err) console.log(err);
+      db.get(name, function (err, results) {
+        if (err) console.log('getErr', err);
         packageJSON['test-results'] = results;
         res.send(packageJSON);
       });
