@@ -39,7 +39,8 @@ exports.spool = function (module) {
   if (module !== undefined) {
     spool.push(module);
   }
-  while (spool.length && runCount++ < 10) {
+  while (spool.length && runCount < 10) {
+    runCount++;
     exports.run(spool.shift());
   }
 };
