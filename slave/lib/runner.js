@@ -4,9 +4,6 @@ var cp = require("child_process"),
     util = require("util"),
     _ = require("underscore");
 
-function determineSuite(cmd) {
-}
-
 function Runner(cmd, run_path) {
   events.EventEmitter.call(this);
 
@@ -24,42 +21,57 @@ var killTimeout = 15000;
 
 var RunnerPrototype = {
   run: function (cmd, run_path) {
-    this.commandLine = {
-      args: [],
-      cmd: "",
-      envs: {}
-    };
 
-    // split the command apart, cmd[0] will be the executable
-    cmd = cmd.split(" ");
-    this.processCmdLine(cmd);
 
-    // are we using a suite? or a generic
-    determineSuite(cmd);
+    handler = this.createTestHandler(cmd);
 
     // run the command and pass everything else from the split as args
     // (expresso ./tests, node test/test.js)
-    var env = _.extend(process.env, this.commandLine.envs);
-    env["NODE_PATH"] = "./test_suites:" + process.env["NODE_PATH"];
+    // var env = _.extend(process.env, this.commandLine.envs);
+    // env["NODE_PATH"] = "./test_suites:" + process.env["NODE_PATH"];
 
-    console.log(run_path);
+    // var p = cp.spawn(this.commandLine.cmd, this.commandLine.args, {
+    //   cwd: run_path,
+    //   env: env
+    // });
 
-    var p = cp.spawn(this.commandLine.cmd, this.commandLine.args, {
-      cwd: run_path,
-      env: env
-    });
-    p.stdout.on("data", _.bind(this.onOut, this));
-    p.stderr.on("data", _.bind(this.onErr, this));
-    p.on("exit", _.bind(this.onExit, this));
+    // p.stdout.on("data", _.bind(this.onOut, this));
+    // p.stderr.on("data", _.bind(this.onErr, this));
+    // p.on("exit", _.bind(this.onExit, this));
 
-    this.child = p;
-    this.flagForDeath();
+    // this.child = p;
+    // this.flagForDeath();
   },
+
+  createTestHandler: function(cmd) {
+    // split the command apart, cmd[0] will be the executable
+    commandLine = this.processCmdLine(cmd);
+
+    var handler;
+    try {
+      handler = require("./handlers/" + commandLine.name);
+      console.log("created new '" + commandLine.name + "' test handler");
+    } catch(e) {
+    throw e;
+      handler = require("./handler/generic");
+    }
+
+    return new handler(commandLine);
+  },
+
   processCmdLine: function (cmd) {
-    var env;
+    var commandLine = {
+      args: [],
+      cmd: "",
+      envs: {},
+      name: ""
+    }, env, cmd = cmd.split(" ");
+
+    commandLine.name = cmd[0];
+
     while (cmd[0] && cmd[0].indexOf("=") > -1) {
       env = cmd.shift().split("=");
-      this.commandLine.envs[env[0]] = env[1];
+      commandLine.envs[env[0]] = env[1];
     }
 
     console.log("Determining test suite: " + cmd[0]);
@@ -70,17 +82,17 @@ var RunnerPrototype = {
     // this will prevent the need for global install of a test suite
     // hopefully helping once we are overloading the suite to grab results
     if (cmd[0] && cmd[0].indexOf("expresso") > -1) {
-      this.commandLine.cmd = path.join(process.cwd(), "/test_suites/expresso/bin/expresso");
+      commandLine.cmd = path.join(process.cwd(), "/test_suites/expresso/bin/expresso");
     } else if (cmd[0] && cmd[0].indexOf("tap") > -1) {
-      this.commandLine.envs.TAP = 1;
-      this.commandLine.cmd = path.join(process.cwd(), "/test_suites/tap/bin/tap");
+      commandLine.envs.TAP = 1;
+      commandLine.cmd = path.join(process.cwd(), "/test_suites/tap/bin/tap");
     } else {
-      this.commandLine.cmd = cmd[0];
+      commandLine.cmd = cmd[0];
     }
 
-    this.commandLine.args = cmd.slice(1);
+    commandLine.args = cmd.slice(1);
 
-    // console.log(this.commandLine);
+    return commandLine;
   },
   onErr: function (err) {
     this.resetTimer();
