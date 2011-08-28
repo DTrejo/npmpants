@@ -11,6 +11,8 @@ function TestHandler(cmd, workingDir) {
 
   console.log("new '" + cmd.name + "' TestHandler");
 
+  this.freshenTimer();
+
   this.run(workingDir);
 }
 
@@ -21,7 +23,6 @@ util.inherits(TestHandler, events.EventEmitter);
 TestHandler.prototype.run = function(workingDir) {
   var env = _.extend(process.env, this.commandLine.envs);
 
-console.log(this.commandLine.cmd);
   var p = cp.spawn(this.commandLine.cmd, this.commandLine.args, {
     cwd: workingDir,
     env: env
@@ -30,16 +31,29 @@ console.log(this.commandLine.cmd);
   p.stderr.on("data", _.bind(this.onErr, this));
   p.stdout.on("data", _.bind(this.onStd, this));
   p.on("exit", _.bind(this.onExit, this));
+
+  this.p = p;
+}
+
+TestHandler.prototype.freshenTimer = function() {
+  if(this._t)
+    clearTimeout(this._t);
+
+  this._t = setTimeout(_.bind(this.killProcess, this), 5000);
+}
+
+TestHandler.prototype.killProcess = function() {
+  this.p.kill();
 }
 
 TestHandler.prototype.onErr = function(err, data) {
-
+  this.freshenTimer();
 }
 
 TestHandler.prototype.onStd = function(data) {
-
+  this.freshenTimer();
 }
 
 TestHandler.prototype.onExit = function(code, sig) {
-  this.emit("complete", code <= 0, sig);
+  this.emit("complete", code === 0, sig);
 }
