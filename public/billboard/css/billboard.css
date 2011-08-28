@@ -1,0 +1,15 @@
+.passed {
+  color: green;
+}
+
+.failed {
+  color: red;
+}
+
+.result-version {
+  float: left;
+}
+
+.result-platforms {
+  float: left;
+}
