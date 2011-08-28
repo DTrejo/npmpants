@@ -82,8 +82,6 @@ exports.run = function (module, runner) {
       return;
     }
     r.on('complete', function (success, message) {
-      runCount--;
-      exports.spool();
       console.log('complete>', module, success, message, exports.UNAME);
       db.save((module + '.' + pack.version + '.' + exports.UNAME + '.'
               + process.version).replace(/\s/g, '_'),
@@ -93,6 +91,8 @@ exports.run = function (module, runner) {
                 system: exports.UNAME,
                 node: process.version,
                 message: message});
+      runCount--;
+      exports.spool();
     });
     r.on('error', function (err) {
       console.log('Something went wrong: ' + err);

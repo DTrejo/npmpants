@@ -27,9 +27,9 @@ var interpretJSON = function (obj) {
     var latest = el.doc.versions[versions.pop()];
 
     if (latest && latest.scripts && latest.scripts.test !== undefined) {
-      setTimeout(function() {
+      process.nextTick(function () {
         var s = slave.spool(el.id);
-      },0);
+      });
     }
   });
 };

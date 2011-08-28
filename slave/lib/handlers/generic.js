@@ -20,7 +20,7 @@ module.exports = TestHandler;
 
 util.inherits(TestHandler, events.EventEmitter);
 
-TestHandler.prototype.run = function(workingDir) {
+TestHandler.prototype.run = function (workingDir) {
   var env = _.extend(process.env, this.commandLine.envs);
 
   var p = cp.spawn(this.commandLine.cmd, this.commandLine.args, {
@@ -33,27 +33,29 @@ TestHandler.prototype.run = function(workingDir) {
   p.on("exit", _.bind(this.onExit, this));
 
   this.p = p;
-}
+};
 
-TestHandler.prototype.freshenTimer = function() {
-  if(this._t)
+TestHandler.prototype.freshenTimer = function () {
+  if (this._t) {
     clearTimeout(this._t);
+  }
 
   this._t = setTimeout(_.bind(this.killProcess, this), 5000);
-}
+};
 
-TestHandler.prototype.killProcess = function() {
+TestHandler.prototype.killProcess = function () {
   this.p.kill();
-}
+  this.emit("complete", false, 'SIGTERM');
+};
 
-TestHandler.prototype.onErr = function(err, data) {
+TestHandler.prototype.onErr = function (err, data) {
   this.freshenTimer();
-}
+};
 
-TestHandler.prototype.onStd = function(data) {
+TestHandler.prototype.onStd = function (data) {
   this.freshenTimer();
-}
+};
 
-TestHandler.prototype.onExit = function(code, sig) {
+TestHandler.prototype.onExit = function (code, sig) {
   this.emit("complete", code === 0, sig);
-}
+};
