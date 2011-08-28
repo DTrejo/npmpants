@@ -107,6 +107,7 @@ exports.run = function (module, runner) {
     if (!(pack.scripts && pack.scripts.test)) {
       //throw new Error("pack needs to define scripts.test");
       console.log('pack needs to define scripts.test');
+      // TODO emit a needs to define scripts.test!!
       return;
     }
     if (pack.scripts && pack.scripts.test) {
