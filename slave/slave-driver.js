@@ -72,7 +72,7 @@ exports.run = function (module, runner) {
     r.on('complete', function (code, sig, err) {
       console.log('complete>', module, code, sig,
                   err && err.message, exports.UNAME);
-      db.save(module + '@' + pack.version + ':' + exports.UNAME + ', ' + process.version,
+      db.save((module + '.' + pack.version + '.' + exports.UNAME + '.' + process.version).replace(/\s/g, '_'),
               { name: module,
                 version: pack.version,
                 passed: code === 0,
