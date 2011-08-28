@@ -91,8 +91,8 @@ exports.run = function (module, runner) {
         doc.tests[version][exports.UNAME][NODE_VERSION] = {
           passed: success,
           message: message
-        }
-        
+        };
+
         db.save(module, doc);
       });
       npm.commands.uninstall(['../slave/test_modules/node_modules/' + module], Function.prototype);

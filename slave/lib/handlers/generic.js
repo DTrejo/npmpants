@@ -45,8 +45,10 @@ TestHandler.prototype.freshenTimer = function () {
 
 TestHandler.prototype.killProcess = function () {
   try {
-    this.p.kill('SIGTERM');
-    this.p.kill('SIGINT');
+    if (this.p) {
+      this.p.kill('SIGTERM');
+      this.p.kill('SIGINT');
+    }
   } catch (e) {
     this.emit('complete', false, 'Failed to kill process: ' + e.message);
   }
