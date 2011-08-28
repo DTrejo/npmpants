@@ -79,16 +79,16 @@ exports.run = function (module, runner) {
         if(err) {
           doc = {};
           doc.name = module;
-          doc.results = {};
+          doc.tests = {};
         }
 
-        if(!doc.results[version])
-          doc.results[version] = {};
+        if(!doc.tests[version])
+          doc.tests[version] = {};
 
-        if(!doc.results[version][exports.UNAME])
-          doc.results[version][exports.UNAME] = {};
+        if(!doc.tests[version][exports.UNAME])
+          doc.tests[version][exports.UNAME] = {};
 
-        doc.results[version][exports.UNAME][NODE_VERSION] = {
+        doc.tests[version][exports.UNAME][NODE_VERSION] = {
           passed: success,
           message: message
         }
