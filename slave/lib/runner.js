@@ -20,6 +20,8 @@ module.exports = Runner;
 
 util.inherits(Runner, events.EventEmitter);
 
+var killTimeout = 15000;
+
 var RunnerPrototype = {
   run: function (cmd, run_path) {
     this.commandLine = {
@@ -41,14 +43,17 @@ var RunnerPrototype = {
     env["NODE_PATH"] = "./test_suites:" + process.env["NODE_PATH"];
 
     console.log(run_path);
+
     var p = cp.spawn(this.commandLine.cmd, this.commandLine.args, {
       cwd: run_path,
       env: env
     });
-
     p.stdout.on("data", _.bind(this.onOut, this));
     p.stderr.on("data", _.bind(this.onErr, this));
     p.on("exit", _.bind(this.onExit, this));
+
+    this.child = p;
+    this.flagForDeath();
   },
   processCmdLine: function (cmd) {
     var env;
@@ -66,7 +71,7 @@ var RunnerPrototype = {
     // hopefully helping once we are overloading the suite to grab results
     if (cmd[0] && cmd[0].indexOf("expresso") > -1) {
       this.commandLine.cmd = path.join(process.cwd(), "/test_suites/expresso/bin/expresso");
-    } else if(cmd[0] && cmd[0].indexOf("tap") > -1) {
+    } else if (cmd[0] && cmd[0].indexOf("tap") > -1) {
       this.commandLine.envs.TAP = 1;
       this.commandLine.cmd = path.join(process.cwd(), "/test_suites/tap/bin/tap");
     } else {
@@ -78,17 +83,35 @@ var RunnerPrototype = {
     // console.log(this.commandLine);
   },
   onErr: function (err) {
+    this.resetTimer();
     console.log("[APP ERROR] " + err);
     this.emit("error", err);
   },
 
   onExit: function (code, sig) {
+    this.clearTimer();
     this.emit("complete", !code);
   },
 
   onOut: function (data) {
+    this.resetTimer();
     console.log("[APP] " + data);
     this.emit('data', data);
+  },
+  kill: function () {
+    this.child.kill();
+    delete this.child;
+  },
+  flagForDeath: function () {
+    this.timer = setTimeout(_.bind(this.kill, this), killTimeout);
+  },
+  clearTimer: function () {
+    clearTimeout(this.timer);
+    delete this.child;
+  },
+  resetTimer: function () {
+    clearTimeout(this.timer);
+    this.flagForDeath();
   }
 };
 
