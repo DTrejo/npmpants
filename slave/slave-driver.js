@@ -35,13 +35,15 @@ npm.load(config, function () {
 });
 
 var runCount = 0, spool = [];
+
 exports.spool = function (module) {
   if (module !== undefined) {
     spool.push(module);
   }
   while (spool.length && runCount < 10) {
     runCount++;
-    exports.run(spool.shift());
+    var next = spool.shift();
+    exports.run(next);
   }
 };
 
@@ -56,13 +58,35 @@ exports.run = function (module, runner) {
     // return the runner so other components can subscribe to completed events
     return r;
   }
-
   console.log("Installing " + module);
 
   // ok, npm must be ready now, continue with the install
   // install(here, module_name, cb);
   npm.commands.install(__dirname + "/test_modules", module, function (err, data) {
+    var version;
+    if (Array.isArray(data) && Array.isArray(data[data.length - 1])) {
+      version = data[data.length - 1][0];
+      version = version.substr(version.indexOf('@') + 1);
+    }
+    r.on('complete', function (success, message) {
+      runCount--;
+      console.log('complete>', module, success, message, exports.UNAME);
+      db.save((module + '.' + version + '.' + exports.UNAME + '.'
+              + process.version).replace(/\s/g, '_'),
+              { name: module,
+                version: version,
+                passed: success,
+                system: exports.UNAME,
+                node: process.version,
+                message: message});
+      exports.spool();
+    });
+    r.on('error', function (err) {
+      console.log('Something went wrong: ' + err);
+    });
+
     if (err) {
+      console.log('Failed to install package.');
       r.emit('complete', false, err.message);
       return;
     }
@@ -75,29 +99,16 @@ exports.run = function (module, runner) {
       fs.readFileSync(module_path + "/package.json").toString()
     );
 
+    if (version === undefined) {
+      version = pack.version;
+    }
+
     // we only care about modules that provide a test in package.json
     if (!(pack.scripts && pack.scripts.test)) {
       //throw new Error("pack needs to define scripts.test");
       console.log('pack needs to define scripts.test');
       return;
     }
-    r.on('complete', function (success, message) {
-      console.log('complete>', module, success, message, exports.UNAME);
-      db.save((module + '.' + pack.version + '.' + exports.UNAME + '.'
-              + process.version).replace(/\s/g, '_'),
-              { name: module,
-                version: pack.version,
-                passed: success,
-                system: exports.UNAME,
-                node: process.version,
-                message: message});
-      runCount--;
-      exports.spool();
-    });
-    r.on('error', function (err) {
-      console.log('Something went wrong: ' + err);
-    });
-
     if (pack.scripts && pack.scripts.test) {
       // tell the runner to go to work
       r.run(pack.scripts.test, module_path);

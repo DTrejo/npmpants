@@ -17,8 +17,6 @@ module.exports = Runner;
 
 util.inherits(Runner, events.EventEmitter);
 
-var killTimeout = 15000;
-
 var RunnerPrototype = {
   run: function (cmd, run_path) {
 
@@ -112,10 +110,10 @@ var RunnerPrototype = {
   },
   kill: function () {
     this.child.kill();
-    delete this.child;
+    this.emit('complete', false, 'Did not complete in a timely manner.');
   },
   flagForDeath: function () {
-    this.timer = setTimeout(_.bind(this.kill, this), killTimeout);
+    this.timer = setTimeout(_.bind(this.kill, this), 15000);
   },
   clearTimer: function () {
     clearTimeout(this.timer);

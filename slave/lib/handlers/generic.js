@@ -40,12 +40,17 @@ TestHandler.prototype.freshenTimer = function () {
     clearTimeout(this._t);
   }
 
-  this._t = setTimeout(_.bind(this.killProcess, this), 5000);
+  this._t = setTimeout(_.bind(this.killProcess, this), 15000);
 };
 
 TestHandler.prototype.killProcess = function () {
-  this.p.kill();
-  this.emit("complete", false, 'SIGTERM');
+  try {
+    this.p.kill('SIGTERM');
+    this.p.kill('SIGINT');
+    this.emit("complete", false, 'Did not complete in a timely manner.');
+  } catch (e) {
+    this.emit('complete', false, 'Failed to kill process: ' + e.message);
+  }
 };
 
 TestHandler.prototype.onErr = function (err, data) {
@@ -57,5 +62,6 @@ TestHandler.prototype.onStd = function (data) {
 };
 
 TestHandler.prototype.onExit = function (code, sig) {
+  clearTimeout(this._t);
   this.emit("complete", code === 0, sig);
 };
