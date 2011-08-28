@@ -91,8 +91,8 @@ app.get('/api/modules/:name', function (req, res, next) {
   });
 });
 
-app.get('/api/results', function(req, res) {
-  get('hollaback.iriscouch.com', 80, '/results/_all_docs?include_docs=true', function(data){
+app.get('/api/results', function (req, res) {
+  get('hollaback.iriscouch.com', 80, '/results/_all_docs?include_docs=true', function (data) {
     res.send(JSON.stringify(JSON.parse(data).rows));
   });
 });
@@ -105,28 +105,15 @@ app.listen(PORT);
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Stream from our db for realtime test results updates to clients
 var everyone = nowjs.initialize(app);
 
 var lastDbSeq = 0;
 
 // Get our db's last change id
-get('hollaback.iriscouch.com', 80, '/testresults/_changes', function(data){
+get('hollaback.iriscouch.com', 80, '/results/_changes', function (data) {
   data = JSON.parse(data);
-  lastDbSeq = data.last_seq;
+  lastDbSeq = data.last_seq - 10;
   getDbChanges();
 });
 
@@ -134,18 +121,18 @@ function getDbChanges() {
   http.get({
     host: 'hollaback.iriscouch.com',
     port: 80,
-    path: '/testresults/_changes?feed=continuous&since='+(lastDbSeq)
-  }, function(res) {
+    path: '/results/_changes?feed=continuous&since=' + (lastDbSeq)
+  }, function (res) {
     var cur = '';
-    res.on('data', function(chunk){
+    res.on('data', function (chunk) {
       cur += chunk.toString();
       try {
         var data = JSON.parse(cur);
         var newSeq = data.seq || data.last_seq;
-        if(newSeq > lastDbSeq) {
+        if (newSeq > lastDbSeq) {
           lastDbSeq = newSeq;
         }
-        if(data.hasOwnProperty('id')) {
+        if (data.hasOwnProperty('id')) {
           updateResults(data);
         }
         cur = '';
@@ -157,12 +144,12 @@ function getDbChanges() {
 }
 
 function updateResults(data) {
-  get('hollaback.iriscouch.com', 80, '/testresults/'+data.id, function(res){
+  get('hollaback.iriscouch.com', 80, '/results/'+data.id, function(res){
     res = JSON.parse(res);
-    if(res.hasOwnProperty('error')) {
+    if (res.hasOwnProperty('error')) {
       console.log(data.id, res);
     } else {
-      console.log('Updating results for ' + res.name + '@' + res.version, res.system, res.node);
+      console.log('Updating results for ' + res.name);
       // Update object
       updateRecentTests(res);
     }
@@ -171,42 +158,36 @@ function updateResults(data) {
 
 
 
-
-
-
-
-
 // Stream from NPM db for great realtime updates
 
 var lastNpmSeq = 0;
 
-
 // Gets last change id
 
-get('hollaback.iriscouch.com', 80, '/registry/_changes', function(data){
+get('search.npmjs.org', 80, '/api/_changes', function (data){
   data = JSON.parse(data);
-  lastNpmSeq = data.last_seq;
+  lastNpmSeq = data.last_seq - 10 || 0;
   getNpmChanges();
 });
 
 
 function getNpmChanges() {
   http.get({
-    host: 'hollaback.iriscouch.com',
+    host: 'search.npmjs.org',
     port: 80,
-    path: '/registry/_changes?feed=continuous&since='+(lastNpmSeq)
-  }, function(res) {
+    path: '/api/_changes?feed=continuous&since=' + (lastNpmSeq)
+  }, function (res) {
     var cur = '';
-    res.on('data', function(chunk){
+    res.on('data', function (chunk) {
       cur += chunk.toString();
       try {
         var data = JSON.parse(cur);
-        var newSeq = data.seq || data.last_seq;
-        if(newSeq > lastNpmSeq) {
+        var newSeq = data.seq === undefined ? data.last_seq : data.seq;
+        if (newSeq && newSeq > lastNpmSeq) {
           lastNpmSeq = newSeq;
         }
         console.log('lastnpmseq is', lastNpmSeq);
-        if(data.hasOwnProperty('id')) {
+        if (data.hasOwnProperty('id')) {
           updateModule(data);
         }
         cur = '';
@@ -219,10 +200,10 @@ function getNpmChanges() {
 
 function updateModule(data) {
   console.log('Updating ' + data.id);
-  get('hollaback.iriscouch.com', 80, '/registry/'+data.id, function(res){
+  get('search.npmjs.org', 80, '/api/' + data.id, function (res) {
     res = JSON.parse(res);
-    if(res.hasOwnProperty('error')) {
-      console.log(data.id, res);
+    if (res.hasOwnProperty('error')) {
+      console.log(data, res);
     } else {
       // Update object
       /*everyone.count(function(count){
@@ -230,15 +211,15 @@ function updateModule(data) {
           everyone.now.projectUpdated(data);
         }
       });*/
-      alertSlaves(data);
-      updateRecent(data);
+      alertSlaves(data.id);
+      updateRecent(res);
     }
   });
 }
 
 function alertSlaves(data) {
   // Tell slaves to rerun tests for module specified in data
-  get('127.0.0.1', 11235, '/' + data.id, function() {}); // only solaris at the moment!
+  get('127.0.0.1', 11235, '/' + data, function () {}); // only solaris at the moment!
   // TODO keep track of remote slaves. yepppp.
 }
 
@@ -248,12 +229,12 @@ function get(host, port, path, cb) {
     host: host,
     port: port,
     path: path
-  }, function(res) {
+  }, function (res) {
     var cur = '';
-    res.on('data', function(chunk){
+    res.on('data', function (chunk) {
       cur += chunk.toString();
     });
-    res.on('end', function(){
+    res.on('end', function () {
       cb(cur);
     });
   });
@@ -266,30 +247,31 @@ var recent = [];
 var recentTests = [];
 
 function updateRecent(data) {
-  if(recent.length > 10) {
+  if (recent.length > 10) {
     recent.shift();
   }
-  recent.push(data.id);
-  everyone.count(function(count){
-    if(count > 0) {
-      everyone.now.addToRecent([data.id]);
+  recent.push(data);
+  everyone.count(function (count) {
+    if (count > 0) {
+      everyone.now.addToRecent([data]);
     }
   });
 }
 
 function updateRecentTests(data) {
-  if(recentTests.length > 10) {
+  if (recentTests.length > 10) {
     recentTests.shift();
   }
-  recentTests.push(data.name);
-  everyone.count(function(count){
-    if(count > 0) {
-      everyone.now.addToRecentTests([data.name]);
+  recentTests.push(data);
+  everyone.count(function (count) {
+    if (count > 0) {
+      everyone.now.addToRecentTests([data]);
     }
   });
 }
 
-nowjs.on('connect', function(){
+nowjs.on('connect', function () {
+  console.log('Client connected!');
   this.now.addToRecent(recent);
   this.now.addToRecentTests(recentTests);
 });

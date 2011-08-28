@@ -1,15 +1,16 @@
-$(document).ready(function() {
+var $, now;
+$(document).ready(function () {
   var input = $('#input')
     , button = $('#button');
 
-  input.bind('keypress', function(e) {
+  input.bind('keypress', function (e) {
     if (e.keyCode === 13) {
       button.click();
       e.preventDefault();
       return false;
     }
   });
-  button.click(function(e) {
+  button.click(function (e) {
     var module = escape($.trim(input.val())) || 'express';
     window.location = '/modules/#' + module;
     e.preventDefault();
@@ -40,32 +41,33 @@ $(document).ready(function() {
 
 
 // Load realtime data
-now.testUpdated = function(data) {
+now.testUpdated = function (data) {
   if (console) {
     console.log("Updated", data);
   }
 };
 
 // Add to list of recently updated repos
-now.addToRecent = function(moduleArr) {
-  $(".recentitem").each(function(i) {
-    if(i > (9-moduleArr.length) ) {
+now.addToRecent = function (moduleArr) {
+  $(".recentitem").each(function (i) {
+    if (i > (9 - moduleArr.length)) {
       $(this).remove();
     }
   });
-  for(var i = 0, ii = moduleArr.length; i < ii; i++) {
-    $("#recentbar").prepend($("<a></a>").addClass('recentitem').text(moduleArr[i]).prop('href', '/modules/#' + moduleArr[i]));
+  for (var i = 0, ii = moduleArr.length; i < ii; i++) {
+    console.log('NAME', moduleArr[i].name);
+    $("#recentbar").prepend($("<a></a>").addClass('recentitem').text(moduleArr[i].name).prop('href', '/modules/#' + moduleArr[i].name));
   }
 };
 
 // Add to list of recently updated tests
-now.addToRecentTests = function(moduleArr) {
-  $(".recenttestitem").each(function(i) {
-    if(i > (9-moduleArr.length) ) {
+now.addToRecentTests = function (moduleArr) {
+  $(".recenttestitem").each(function (i) {
+    if (i > (9 - moduleArr.length)) {
       $(this).remove();
     }
   });
-  for(var i = 0, ii = moduleArr.length; i < ii; i++) {
-    $("#recenttestbar").prepend($("<a></a>").addClass('recenttestitem').text(moduleArr[i]).prop('href', '/modules/#' + moduleArr[i]));
+  for (var i = 0, ii = moduleArr.length; i < ii; i++) {
+    $("#recenttestbar").prepend($("<a></a>").addClass('recenttestitem').text(moduleArr[i].name).prop('href', '/modules/#' + moduleArr[i].name));
   }
 };
