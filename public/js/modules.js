@@ -80,7 +80,8 @@ $(document).ready(function() {
       $('td', row).removeClass('greencheck redx').empty();
       $('.' + klass, row)
         .text(el.version)
-        .addClass(el.passed ? 'greencheck' : 'redx');
+        .addClass(el.passed ? 'greencheck' : 'redx')
+        .attr('title', el.passed ? 'passed!' : 'failed');
       $('.node', row).text(el.node);
 
       table.append(row);
