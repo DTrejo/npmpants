@@ -235,6 +235,8 @@ function updateModule(data) {
 
 function alertSlaves(data) {
   // Tell slaves to rerun tests for module specified in data
+  get('localhost', 11235, '/' function() {}); // only solaris at the moment!
+  // TODO keep track of remote slaves. yepppp.
 }
 
 
