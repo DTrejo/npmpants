@@ -43,7 +43,7 @@ var RunnerPrototype = {
     console.log(run_path);
     var p = cp.spawn(this.commandLine.cmd, this.commandLine.args, {
       cwd: run_path,
-      env: env 
+      env: env
     });
 
     p.stdout.on("data", _.bind(this.onOut, this));
@@ -83,7 +83,7 @@ var RunnerPrototype = {
   },
 
   onExit: function (code, sig) {
-    this.emit("complete", code, sig);
+    this.emit("complete", !code);
   },
 
   onOut: function (data) {

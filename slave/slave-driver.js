@@ -53,7 +53,7 @@ exports.run = function (module, runner) {
   // install(here, module_name, cb);
   npm.commands.install(__dirname + "/test_modules", module, function (err, data) {
     if (err) {
-      r.emit('complete', 1, null, err);
+      r.emit('complete', false, err.message);
       return;
     }
 
@@ -71,17 +71,16 @@ exports.run = function (module, runner) {
       console.log('pack needs to define scripts.test');
       return;
     }
-    r.on('complete', function (code, sig, err) {
-      console.log('complete>', module, code, sig,
-                  err && err.message, exports.UNAME);
+    r.on('complete', function (success, message) {
+      console.log('complete>', module, success, message, exports.UNAME);
       db.save((module + '.' + pack.version + '.' + exports.UNAME + '.'
               + process.version).replace(/\s/g, '_'),
               { name: module,
                 version: pack.version,
-                passed: code === 0,
+                passed: success,
                 system: exports.UNAME,
                 node: process.version,
-                err: err && err.message});
+                message: message});
     });
     r.on('error', function (err) {
       console.log('Something went wrong: ' + err);
@@ -91,8 +90,7 @@ exports.run = function (module, runner) {
       // tell the runner to go to work
       r.run(pack.scripts.test, module_path);
     } else {
-      r.emit('complete', 1, null
-        , { message: "package needs to define scripts.test" });
+      r.emit('complete', false, "package needs to define scripts.test");
     }
   });
 
