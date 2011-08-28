@@ -1,15 +1,15 @@
-var cp = require("child_process"),
-    events = require("events"),
-    path = require("path"),
-    util = require("util"),
-    _ = require("underscore");
+var cp = require('child_process'),
+    events = require('events'),
+    path = require('path'),
+    util = require('util'),
+    _ = require('underscore');
 
 function TestHandler(cmd, workingDir) {
   events.EventEmitter.call(this);
 
   this.commandLine = cmd;
 
-  console.log("new '" + cmd.name + "' TestHandler");
+  console.log('new "' + cmd.name + '" TestHandler');
 
   this.freshenTimer();
 
@@ -28,9 +28,9 @@ TestHandler.prototype.run = function (workingDir) {
     env: env
   });
 
-  p.stderr.on("data", _.bind(this.onErr, this));
-  p.stdout.on("data", _.bind(this.onStd, this));
-  p.on("exit", _.bind(this.onExit, this));
+  p.stderr.on('data', _.bind(this.onErr, this));
+  p.stdout.on('data', _.bind(this.onStd, this));
+  p.on('exit', _.bind(this.onExit, this));
 
   this.p = p;
 };
@@ -47,7 +47,6 @@ TestHandler.prototype.killProcess = function () {
   try {
     this.p.kill('SIGTERM');
     this.p.kill('SIGINT');
-    this.emit("complete", false, 'Did not complete in a timely manner.');
   } catch (e) {
     this.emit('complete', false, 'Failed to kill process: ' + e.message);
   }
@@ -63,5 +62,5 @@ TestHandler.prototype.onStd = function (data) {
 
 TestHandler.prototype.onExit = function (code, sig) {
   clearTimeout(this._t);
-  this.emit("complete", code === 0, sig);
+  this.emit('complete', code === 0, sig);
 };
