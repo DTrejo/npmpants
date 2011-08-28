@@ -211,7 +211,7 @@ function updateModule(data) {
           everyone.now.projectUpdated(data);
         }
       });*/
-      alertSlaves(data.id);
+      // alertSlaves(data.id);
       updateRecent(res);
     }
   });
@@ -247,6 +247,9 @@ var recent = [];
 var recentTests = [];
 
 function updateRecent(data) {
+  if (recent.map(function (a) {return a.name;}).indexOf(data.name) + 1) {
+    return;
+  }
   if (recent.length > 10) {
     recent.shift();
   }
@@ -259,6 +262,9 @@ function updateRecent(data) {
 }
 
 function updateRecentTests(data) {
+  if (recentTests.map(function (a) {return a.name;}).indexOf(data.name) + 1) {
+    return;
+  }
   if (recentTests.length > 10) {
     recentTests.shift();
   }
