@@ -41,5 +41,5 @@ TestHandler.prototype.onStd = function(data) {
 }
 
 TestHandler.prototype.onExit = function(code, sig) {
-  this.emit("complete", this.successful, this.message);
+  this.emit("complete", code > 0, sig);
 }

@@ -15,7 +15,6 @@ var connection = new cradle.Connection('hollaback.iriscouch.com', 80, {
 
 var db = connection.database('testresults');
 
-
 var queue = [], ready = false, getUname;
 
 var config = { loglevel: 'silent' };

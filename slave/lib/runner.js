@@ -25,6 +25,8 @@ var RunnerPrototype = {
 
     handler = this.createTestHandler(cmd, run_path);
 
+    handler.on("complete", _.bind(this.onExit, this));
+
     // run the command and pass everything else from the split as args
     // (expresso ./tests, node test/test.js)
     // var env = _.extend(process.env, this.commandLine.envs);
@@ -100,9 +102,9 @@ var RunnerPrototype = {
     this.emit("error", err);
   },
 
-  onExit: function (code, sig) {
+  onExit: function (successful, code) {
     this.clearTimer();
-    this.emit("complete", !code);
+    this.emit("complete", successful, code);
   },
 
   onOut: function (data) {
