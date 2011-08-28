@@ -160,7 +160,7 @@ function updateResults(data) {
     if(res.hasOwnProperty('error')) {
       console.log(data.id, res);
     } else {
-      console.log("Updating results for " + res.module, res.test);
+      console.log("Updating results for " + res.name + '@' + res.version, res.system, res.node);
       // Update object
       everyone.count(function(count){
         if(count > 0) {
