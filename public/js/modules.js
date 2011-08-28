@@ -1,3 +1,4 @@
+var $;
 // runs on /modules/
 $(document).ready(function() {
   function showPackageInfo() {
@@ -82,21 +83,25 @@ $(document).ready(function() {
 
     function appendTestResult(version, system, node, data) {
       console.log(version, system, node, data.passed);
-      var row =
-      $('#results .template')
-        .clone()
-        .removeClass('hidden template')
-        .addClass('result');
+      var row = $('.node').filter(function () {
+        return $(this).text() === node;
+      }).parent();
+      if (row.length === 0) {
+        row =
+          $('#results .template')
+          .clone()
+          .removeClass('hidden template')
+          .addClass('result');
+        $('td', row).removeClass('greencheck redx').empty();
+        table.append(row);
+      }
 
       var klass = sysToId[system.split(' ')[0]];
-      $('td', row).removeClass('greencheck redx').empty();
       $('.' + klass, row)
         .text(version)
         .addClass(data.passed ? 'greencheck' : 'redx')
         .attr('title', data.passed ? 'passed!' : 'failed');
       $('.node', row).text(node);
-
-      table.append(row);
     }
   }
   function spinner(on) {
