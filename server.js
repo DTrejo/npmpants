@@ -1,5 +1,7 @@
 // boring requires
-var express = require('express')
+var auth = require("connect-auth")
+  , connect = require("connect")
+  , express = require('express')
   , http = require('http')
   , app = express.createServer()
   , colors = require('colors')
@@ -20,11 +22,19 @@ var express = require('express')
 
   // constants
   , PORT = parseInt(process.env.PORT, 10) || 8000
+  , config = require("./config")
   ;
 
 // match app routes before serving static file of that name
 app.use(app.router);
 app.use(express.static(__dirname + '/public'));
+app.use(auth(
+	auth.Github({
+		appId: config.ghClientId,
+		appSecret: config.ghSecret,
+		callback: console.log
+	})
+));
 
 // converts a module name to a github URL for that module, if it exists.
 // caches a map of moduleName --> url.

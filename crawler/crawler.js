@@ -17,7 +17,8 @@ var http = require('http'),
  */
 
 var interpretJSON = function (obj) {
-  obj.rows.forEach(function (el, i) {
+  obj.rows.reverse().forEach(function (el, i) {
+    if(!el) el = obj.rows.pop();
     if (!el.id || !el.doc.versions) {
       return;
     }
