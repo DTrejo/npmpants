@@ -18,7 +18,8 @@
     "underscore": "1.1.7",
     "request": "2.1.1",
     "cradle": "0.5.5",
-    "connect-auth": "0.4.1"
+    "connect-auth": "0.4.1",
+    "connect": "1.7.1"
   },
   "devDependencies": {},
   "private": true
