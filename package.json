@@ -17,7 +17,8 @@
     "now": "0.7.4",
     "underscore": "1.1.7",
     "request": "2.1.1",
-    "cradle": "0.5.5"
+    "cradle": "0.5.5",
+    "connect-auth": "0.4.1"
   },
   "devDependencies": {},
   "private": true
