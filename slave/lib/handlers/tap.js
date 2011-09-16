@@ -30,18 +30,19 @@ TapHandler.prototype.run = function(workingDir) {
 };
 
 TapHandler.prototype.output = '';
-TapHandler.prototype.onStd = function (data) {
-  this.output += data;
-}
-
-TapHandler.prototype.onErr = function(err, data) {
-  console.log("error in TapHandler", err.toString(), data);
-};
-
-TapHandler.prototype.onExit = function(code, sig) {
-  /*console.log('===');
-  console.log(this.output); 
-  console.log('===');*/
-  console.log("complete", code <= 0, sig);
-  this.emit("complete", code <= 0, sig);
-};
+TapHandler.prototype.name = 'TapHandler';
+// TapHandler.prototype.onStd = function (data) {
+//   this.output += data;
+// }
+// 
+// TapHandler.prototype.onErr = function(err, data) {
+//   console.log("error in TapHandler", err.toString(), data);
+// };
+// 
+// TapHandler.prototype.onExit = function(code, sig) {
+//   /*console.log('===');
+//   console.log(this.output); 
+//   console.log('===');*/
+//   console.log("complete", code <= 0, sig);
+//   this.emit("complete", code <= 0, sig);
+// };

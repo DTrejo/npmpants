@@ -74,12 +74,15 @@ exports.run = function (module, runner) {
     r.on('complete', function (success, message) {
       runCount--;
       console.log('complete>', module, success, message, exports.UNAME);
+	  console.log("");
 
       db.get(module, function(err, doc) {
+		console.log(doc);
         if(err) {
           doc = {};
           doc.name = module;
           doc.tests = {};
+		  console.log(err);
         }
 
         if(!doc.tests[version])
@@ -93,7 +96,10 @@ exports.run = function (module, runner) {
           message: message
         };
 
-        db.save(module, doc);
+        db.save(module, doc, function(err, res) {
+			if(err) console.log(err);
+			console.log(res);
+		});
       });
       npm.commands.uninstall(['../slave/test_modules/node_modules/' + module], Function.prototype);
       exports.spool();

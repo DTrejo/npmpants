@@ -1,10 +1,12 @@
 var generic = require("./generic"),
     cp = require("child_process"),
+	path = require("path"),
     util = require("util"),
     _ = require('underscore');
 
 function NodeunitHandler(cmd) {
-  generic.apply(this, arguments);
+	this.name = "NodeunitHandler";
+	generic.apply(this, arguments);
 }
 
 util.inherits(NodeunitHandler, generic);
@@ -13,11 +15,11 @@ module.exports = NodeunitHandler;
 
 NodeunitHandler.prototype.run = function(workingDir) {
   var env = _.extend(process.env, this.commandLine.envs);
+  this.commandLine.cmd = path.join(__dirname, "..", "..", "test_suites","lib","node_modules","nodeunit","bin","nodeunit");
 
-  console.log(this.commandLine.cmd, this.commandLine.args);
 
-  // last output format wins
-  //this.commandLine.args.push('--json');
+  console.log("cmd: " + this.commandLine.cmd);
+  console.log("args (" + typeof this.commandLine.args + "): " + this.commandLine.args);
 
   var p = cp.spawn(this.commandLine.cmd, this.commandLine.args, {
     cwd: workingDir,
@@ -30,18 +32,19 @@ NodeunitHandler.prototype.run = function(workingDir) {
 };
 
 NodeunitHandler.prototype.output = '';
-NodeunitHandler.prototype.onStd = function (data) {
-  this.output += data;
-}
-
-NodeunitHandler.prototype.onErr = function(err, data) {
-  console.log("error in NodeunitHandler", err.toString(), data);
-};
-
-NodeunitHandler.prototype.onExit = function(code, sig) {
-  /*console.log('===');
-  console.log(this.output); 
-  console.log('===');*/
-  console.log("complete", code <= 0, sig);
-  this.emit("complete", code <= 0, sig);
-};
+// NodeunitHandler.prototype.onStd = function (data) {
+//   this.output += data;
+//   console.log(data.toString());
+// }
+// 
+// NodeunitHandler.prototype.onErr = function(err, data) {
+//   console.log(err.toString());
+// };
+// 
+// NodeunitHandler.prototype.onExit = function(code, sig) {
+//   /*console.log('===');
+//   console.log(this.output); 
+//   console.log('===');*/
+//   console.log("complete", code <= 0, sig);
+//   this.emit("complete", code <= 0, sig);
+// };
