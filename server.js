@@ -7,10 +7,13 @@ var auth = require("connect-auth")
   , colors = require('colors')
   , fs = require('fs')
   , nowjs = require('now')
-  , nko = require('nko')('fxFY6qeBj18FyrA2')
+  // , nko = require('nko')('fxFY6qeBj18FyrA2')
   , _ = require('underscore')
   , request = require('request')
   , cradle = require('cradle')
+  , github = require("github")
+  , url = require("url")
+  , weldlate = require("weldlate")
 
   // cradle stuff
   , connection = new(cradle.Connection)('hollaback.iriscouch.com', 80, {
@@ -26,15 +29,26 @@ var auth = require("connect-auth")
   ;
 
 // match app routes before serving static file of that name
-app.use(app.router);
+
+app.use(connect.middleware.logger());
+app.use(connect.cookieParser());
+app.use(connect.session({
+	secret: 'baahlblbah',
+	store: new connect.session.MemoryStore({ reapInterval: -1 }) 
+}));
+
+app.use(auth({
+	strategies: [
+		auth.Github({
+			appId: config.ghClientId,
+			appSecret: config.ghSecret,
+			callback: "http://localhost/npmpants/"
+		})
+	]
+}));
+
 app.use(express.static(__dirname + '/public'));
-app.use(auth(
-	auth.Github({
-		appId: config.ghClientId,
-		appSecret: config.ghSecret,
-		callback: console.log
-	})
-));
+app.use(app.router);
 
 // converts a module name to a github URL for that module, if it exists.
 // caches a map of moduleName --> url.
@@ -84,10 +98,11 @@ app.get('/api/modules/:name', function (req, res, next) {
 
     // this doesn't YET contain pass/fail information. need to improve test data
     var githubURL = toUrl(name);
-    if (githubURL) {
       packageJSON.repository = packageJSON.repository || {};
       packageJSON.repository.github = githubURL;
       db.get(name, function (err, results) {
+		if(err) console.log(err);
+		console.log(results);
         if (err || err && (err.error === 'not_found')) {
           res.send(packageJSON);
         } else {
@@ -95,9 +110,6 @@ app.get('/api/modules/:name', function (req, res, next) {
           res.send(packageJSON);
         }
       });
-    } else {
-      res.send(packageJSON);
-    }
   });
 });
 
@@ -105,6 +117,29 @@ app.get('/api/results', function (req, res) {
   get('hollaback.iriscouch.com', 80, '/results/_all_docs?include_docs=true', function (data) {
     res.send(JSON.stringify(JSON.parse(data).rows));
   });
+});
+
+
+app.get("/npmpants/authneeded", function(req, res, next) {
+	req.authenticate("github", function(err, auth) {
+		if(err) {
+			console.log(err);
+			res.end("error");
+		} else {
+			if(auth === undefined) {
+				console.log(auth === undefined);
+			} else {
+				console.log("else next()");
+				var purl = url.parse(req.url, true),
+					gh = new github.GitHubApi();
+
+				gh.authenticateOAuth(purl.query['access_token']);
+				gh.getUserApi().getEmails(function() {
+					console.log(arguments);
+				});
+			}
+		}
+	});
 });
 
 console.log('Your highness, at your service:'.yellow
@@ -291,6 +326,3 @@ nowjs.on('connect', function () {
   this.now.addToRecent(recent);
   this.now.addToRecentTests(recentTests);
 });
-
-
-
