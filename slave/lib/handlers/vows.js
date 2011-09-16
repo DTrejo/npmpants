@@ -1,5 +1,6 @@
 var generic = require("./generic"),
     cp = require("child_process"),
+	path = require("path"),
     util = require("util"),
     _ = require('underscore');
 
@@ -13,7 +14,7 @@ module.exports = VowsHandler;
 
 VowsHandler.prototype.run = function(workingDir) {
   var env = _.extend(process.env, this.commandLine.envs);
-
+  this.commandLine.cmd = path.join(__dirname, "..", "..", "test_suites","lib","node_modules","vows","bin","vows");
   console.log(this.commandLine.cmd, this.commandLine.args);
 
   // last output format wins

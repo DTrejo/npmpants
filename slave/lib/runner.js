@@ -1,5 +1,6 @@
 var cp = require('child_process'),
     events = require('events'),
+	globSync = require("glob").globSync,
     path = require('path'),
     util = require('util'),
     _ = require('underscore');
@@ -10,6 +11,7 @@ function Runner(cmd, run_path) {
   // if npm.load is done yet the Runner gets queued
   // once load is done Runner.run will be called directly
   // from the slave driver
+  console.log(process.env.PATH);
   if (cmd) this.run(cmd, run_path);
 }
 
@@ -23,6 +25,8 @@ var RunnerPrototype = {
     var handler = this.createTestHandler(cmd, run_path);
 
     handler.on('complete', _.bind(this.onExit, this));
+	handler.on("err", _.bind(this.onErr, this));
+	handler.on("out", _.bind(this.onOut, this));
 
     // run the command and pass everything else from the split as args
     // (expresso ./tests, node test/test.js)
@@ -44,7 +48,7 @@ var RunnerPrototype = {
 
   createTestHandler: function (cmd, run_path) {
     // split the command apart, cmd[0] will be the executable
-    var commandLine = this.processCmdLine(cmd);
+    var commandLine = this.processCmdLine(cmd, run_path);
 
     var Handler;
     try {
@@ -52,12 +56,13 @@ var RunnerPrototype = {
       console.log('created new "' + commandLine.name + '" test handler');
     } catch (e) {
       Handler = require('./handlers/generic');
+      console.log('created new "generic" test handler');
     }
 
     return new Handler(commandLine, run_path);
   },
 
-  processCmdLine: function (cmd) {
+  processCmdLine: function (cmd, run_path) {
     var commandLine = {
       args: [],
       envs: {},
@@ -89,41 +94,31 @@ var RunnerPrototype = {
     }*/
 
     commandLine.args = cmd.slice(1);
+	if(commandLine.args.join("").match(/[\.\*]/) !== null) {
+		commandLine.args.forEach(function(arg, i, args) {
+			var match = globSync(path.join(run_path, arg));
+			match.forEach(function(file, index, files) {
+				files[index] = file.replace(run_path, "");
+			});
+			args[i] = match;
+		});
+		commandLine.args = _(commandLine.args).flatten();
+	}
     
     // Set cmd to name of test suite, cmd[0]
     commandLine.cmd = cmd[0];
     
     return commandLine;
   },
-  onErr: function (err) {
-    this.resetTimer();
-    console.log('[APP ERROR] ' + err);
-    this.emit('error', err);
+  onErr: function (err, data) {
+    this.emit('err', err);
   },
 
   onExit: function (successful, code) {
-    this.clearTimer();
     this.emit('complete', successful, code);
   },
-
   onOut: function (data) {
-    this.resetTimer();
-    console.log('[APP] ' + data);
-    this.emit('data', data);
-  },
-  kill: function () {
-    this.child.kill();
-  },
-  flagForDeath: function () {
-    this.timer = setTimeout(_.bind(this.kill, this), 15000);
-  },
-  clearTimer: function () {
-    clearTimeout(this.timer);
-    delete this.child;
-  },
-  resetTimer: function () {
-    clearTimeout(this.timer);
-    this.flagForDeath();
+    this.emit('out', data);
   }
 };
 
