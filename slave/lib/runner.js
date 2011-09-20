@@ -8,7 +8,7 @@ var cp = require('child_process'),
 function Runner(cmd, run_path) {
   events.EventEmitter.call(this);
 
-  // if npm.load is done yet the Runner gets queued
+  // if npm.load is not done yet the Runner gets queued
   // once load is done Runner.run will be called directly
   // from the slave driver
   console.log(process.env.PATH);
@@ -21,29 +21,13 @@ util.inherits(Runner, events.EventEmitter);
 
 var RunnerPrototype = {
   run: function (cmd, run_path) {
-
+  	// this is probably the only step really needed for the runner.
+	// everything else can be part of the GenericHandler super-class
     var handler = this.createTestHandler(cmd, run_path);
 
     handler.on('complete', _.bind(this.onExit, this));
 	handler.on("err", _.bind(this.onErr, this));
 	handler.on("out", _.bind(this.onOut, this));
-
-    // run the command and pass everything else from the split as args
-    // (expresso ./tests, node test/test.js)
-    // var env = _.extend(process.env, this.commandLine.envs);
-    // env['NODE_PATH'] = './test_suites:' + process.env['NODE_PATH'];
-
-    // var p = cp.spawn(this.commandLine.cmd, this.commandLine.args, {
-    //   cwd: run_path,
-    //   env: env
-    // });
-
-    // p.stdout.on('data', _.bind(this.onOut, this));
-    // p.stderr.on('data', _.bind(this.onErr, this));
-    // p.on('exit', _.bind(this.onExit, this));
-
-    // this.child = p;
-    // this.flagForDeath();
   },
 
   createTestHandler: function (cmd, run_path) {
@@ -72,6 +56,7 @@ var RunnerPrototype = {
 
     commandLine.name = cmd[0];
 
+	// check for environment variables
     while (cmd[0] && cmd[0].indexOf('=') > -1) {
       env = cmd.shift().split('=');
       commandLine.envs[env[0]] = env[1];
@@ -79,29 +64,22 @@ var RunnerPrototype = {
 
     console.log('Determining test suite: ' + cmd[0]);
 
-    // TODO
-    // check cmd[0] for = and set appropriate env variables
-
-    // this will prevent the need for global install of a test suite
-    // hopefully helping once we are overloading the suite to grab results
-    /*if (cmd[0] && cmd[0].indexOf("expresso") > -1) {
-      commandLine.cmd = 'expresso'
-    } else if (cmd[0] && cmd[0].indexOf("tap") > -1) {
-      commandLine.envs.TAP = 1;
-      commandLine.cmd = path.join(process.cwd(), '/test_suites/tap/bin/tap');
-    } else {
-      commandLine.cmd = cmd[0];
-    }*/
-
+	// cmd[0] should be the executable
     commandLine.args = cmd.slice(1);
-	if(commandLine.args.join("").match(/(\*|\/>)/) !== null) {
+
+	// if an argument contains ./ or * it will likely need to be expanded to a file list
+	if(commandLine.args.join("").match(/(\*|\.\/>)/) !== null) {
 		commandLine.args.forEach(function(arg, i, args) {
 			var match = globSync(path.join(run_path, arg));
+			// yup, found files
 			match.forEach(function(file, index, files) {
+				// make paths absolute, with better cwd for execution this wont be needed
 				files[index] = file.replace(run_path, "");
 			});
+			// replace the orignal arg with the file list
 			args[i] = match;
 		});
+		// flattening will change the file list to a single arg for each file
 		commandLine.args = _(commandLine.args).flatten();
 	}
     

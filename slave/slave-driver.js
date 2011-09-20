@@ -46,8 +46,7 @@ exports.spool = function (module) {
   }
   while (spool.length && runCount < 10) {
     runCount++;
-    var next = spool.shift();
-    exports.run(next);
+    exports.run(spool.shift());
   }
 };
 
@@ -78,12 +77,11 @@ exports.run = function (module, runner) {
 	  console.log("");
 
       db.get(module, function(err, doc) {
-		console.log(util.inspect(doc));
         if(err) {
           doc = {};
           doc.name = module;
           doc.tests = {};
-		  console.log(err);
+		  message = err;
         }
 
         if(!doc.tests[version])
@@ -98,7 +96,7 @@ exports.run = function (module, runner) {
         };
 
         db.save(module, doc, function(err, res) {
-		console.log(doc.tests[version]);
+			console.log(doc.tests[version]);
 
 			if(err) console.log(err);
 			console.log(res);

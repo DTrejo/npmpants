@@ -156,7 +156,10 @@ var everyone = nowjs.initialize(app);
 var lastDbSeq = 0;
 
 // Get our db's last change id
-get(config.couchHost, 80, '/results/_changes', function (data) {
+console.log("Fetching changes from: " + config.couchHost);
+get(config.couchHost, config.couchPort, '/results/_changes', function (data) {
+	console.log("Database returned: ");
+	console.log(data);
   data = JSON.parse(data);
   lastDbSeq = data.last_seq - 10;
   getDbChanges();
