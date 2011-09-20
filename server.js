@@ -13,7 +13,7 @@ var auth = require("connect-auth")
   , cradle = require('cradle')
   , github = require("github")
   , url = require("url")
-  , weldlate = require("weldlate")
+  // , weldlate = require("weldlate")
 
   // cradle stuff
   , connection = new(cradle.Connection)('hollaback.iriscouch.com', 80, {
