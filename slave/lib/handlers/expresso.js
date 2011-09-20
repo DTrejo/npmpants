@@ -4,7 +4,8 @@ var generic = require("./generic"),
     _ = require('underscore');
 
 function ExpressoHandler(cmd) {
-  generic.apply(this, arguments);
+	this.name = "ExpressoHandler";
+	generic.apply(this, arguments);
 }
 
 util.inherits(ExpressoHandler, generic);

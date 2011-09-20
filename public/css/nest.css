@@ -103,3 +103,16 @@ h1 a {
 .recentitem, .recenttestitem {
   padding-right: 10px;
 }
+
+.github-login {
+	background-image: url(../images/github.png);
+	background-position: right;
+	background-repeat: no-repeat;
+	height: 32px;
+	font-size: 10pt;
+	padding-right: 32px;
+}
+
+.github-login a {
+	margin-top: 12px;
+}

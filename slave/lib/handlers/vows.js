@@ -5,7 +5,8 @@ var generic = require("./generic"),
     _ = require('underscore');
 
 function VowsHandler(cmd) {
-  generic.apply(this, arguments);
+	this.name = "VowsHandler";
+	generic.apply(this, arguments);
 }
 
 util.inherits(VowsHandler, generic);

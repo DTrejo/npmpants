@@ -94,7 +94,7 @@ var RunnerPrototype = {
     }*/
 
     commandLine.args = cmd.slice(1);
-	if(commandLine.args.join("").match(/[\.\*]/) !== null) {
+	if(commandLine.args.join("").match(/(\*|\/>)/) !== null) {
 		commandLine.args.forEach(function(arg, i, args) {
 			var match = globSync(path.join(run_path, arg));
 			match.forEach(function(file, index, files) {

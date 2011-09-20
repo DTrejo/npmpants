@@ -1,5 +1,6 @@
 // boring requires
 var auth = require("connect-auth")
+  , config = require("./config")
   , connect = require("connect")
   , express = require('express')
   , http = require('http')
@@ -16,16 +17,15 @@ var auth = require("connect-auth")
   , weldlate = require("weldlate")
 
   // cradle stuff
-  , connection = new(cradle.Connection)('hollaback.iriscouch.com', 80, {
+  , connection = new(cradle.Connection)(config.couchHost, config.couchPort, {
       cache: true
     , raw: false
-    , auth: { username: 'hollaback', password: 'momasaidknockyouout' }
+    , auth: { username: config.couchUser, password: config.couchPass }
   })
   , db = connection.database('results')
 
   // constants
   , PORT = parseInt(process.env.PORT, 10) || 8000
-  , config = require("./config")
   ;
 
 // match app routes before serving static file of that name
@@ -114,7 +114,7 @@ app.get('/api/modules/:name', function (req, res, next) {
 });
 
 app.get('/api/results', function (req, res) {
-  get('hollaback.iriscouch.com', 80, '/results/_all_docs?include_docs=true', function (data) {
+  get(config.couchHost, config.couchPort, '/results/_all_docs?include_docs=true', function (data) {
     res.send(JSON.stringify(JSON.parse(data).rows));
   });
 });
@@ -156,7 +156,7 @@ var everyone = nowjs.initialize(app);
 var lastDbSeq = 0;
 
 // Get our db's last change id
-get('hollaback.iriscouch.com', 80, '/results/_changes', function (data) {
+get(config.couchHost, 80, '/results/_changes', function (data) {
   data = JSON.parse(data);
   lastDbSeq = data.last_seq - 10;
   getDbChanges();
@@ -164,7 +164,7 @@ get('hollaback.iriscouch.com', 80, '/results/_changes', function (data) {
 
 function getDbChanges() {
   http.get({
-    host: 'hollaback.iriscouch.com',
+    host: config.couchHost,
     port: 80,
     path: '/results/_changes?feed=continuous&since=' + (lastDbSeq)
   }, function (res) {
@@ -189,7 +189,7 @@ function getDbChanges() {
 }
 
 function updateResults(data) {
-  get('hollaback.iriscouch.com', 80, '/results/'+data.id, function(res){
+  get(config.couchHost, config.couchPort, '/results/'+data.id, function(res){
     res = JSON.parse(res);
     if (res.hasOwnProperty('error')) {
       console.log(data.id, res);

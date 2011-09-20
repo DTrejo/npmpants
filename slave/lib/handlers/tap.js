@@ -4,7 +4,8 @@ var generic = require("./generic"),
     _ = require('underscore');
 
 function TapHandler(cmd) {
-  generic.apply(this, arguments);
+	this.name = "TapHandler";
+	generic.apply(this, arguments);
 }
 
 util.inherits(TapHandler, generic);

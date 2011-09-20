@@ -4,7 +4,8 @@ var generic = require("./generic"),
     _ = require('underscore');
 
 function JasmineNodeHandler(cmd) {
-  generic.apply(this, arguments);
+	this.name = "JasmineNodeHandler";
+	generic.apply(this, arguments);
 }
 
 util.inherits(JasmineNodeHandler, generic);

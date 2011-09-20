@@ -5,16 +5,17 @@ require("colors");
 var module = process.argv[2] || "test";
 var s = slave.run(module);
 
+console.log("Running with NodeJS: " + process.version);
 var out = "", err = "";
 
 s.on("out", function(data) {
 	out += data;	
-	console.log("[test.js:out]: ".green + data);
+	console.log("[test.js:out]:\n".green + data);
 });
 
 s.on("err", function(err, data) {
 	err += data;
-	console.log("[test.js:err]: ".red + err, data);
+	console.log("[test.js:err]:\n".red + err, data);
 });
 
 s.on("complete", function(code, sig) {

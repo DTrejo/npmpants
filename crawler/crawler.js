@@ -4,9 +4,16 @@ var options = {
   path: '/api/_all_docs?include_docs=true'
 };
 
-var http = require('http'),
+var usage = [
+	
+];
+
+var args = require("argsparser").parse(),
+	http = require('http'),
     slave = require('../slave'),
-    data = '';
+    data = '',
+	
+	testSuite = args["--suite"] ? args["--suite"] : false;
 
 /**
  * Some magic function that takes the URL of a tarball. Should
@@ -15,6 +22,10 @@ var http = require('http'),
  * TODO: Replace with a reference to the actual function, some time
  * after it's been written.
  */
+
+if(testSuite) {
+	console.log("Only running tests for " + testSuite);
+}
 
 var interpretJSON = function (obj) {
   obj.rows.reverse().forEach(function (el, i) {
@@ -27,10 +38,15 @@ var interpretJSON = function (obj) {
     // TODO may not actually be latest
     var latest = el.doc.versions[versions.pop()];
 
-    if (latest && latest.scripts && latest.scripts.test !== undefined) {
-      process.nextTick(function () {
-        var s = slave.spool(el.id);
-      });
+    if (
+		(latest && latest.scripts && latest.scripts.test !== undefined)
+	) {
+		if(testSuite === false || latest.scripts.test.indexOf(testSuite) > -1) {
+			console.log("Spooling test for " + el.id + " " + latest.version);
+			process.nextTick(function () {
+				var s = slave.spool(el.id);
+			});
+		}
     }
   });
 };

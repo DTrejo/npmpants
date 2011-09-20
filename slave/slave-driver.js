@@ -1,4 +1,5 @@
-var fs = require('fs'),
+var config = require("../config"),
+	fs = require('fs'),
     npm = require('npm'),
     spawn = require('child_process').spawn,
     exec = require('child_process').exec,
@@ -9,10 +10,10 @@ var fs = require('fs'),
 
 const NODE_VERSION = process.version;
 
-var connection = new cradle.Connection('hollaback.iriscouch.com', 80, {
+var connection = new cradle.Connection(config.couchHost, config.couchPort, {
   cache: true,
   raw: false,
-  auth: { username: 'hollaback', password: 'momasaidknockyouout' }
+  auth: { username: config.couchUser, password: config.couchPass }
 });
 
 var db = connection.database('results');
@@ -77,7 +78,7 @@ exports.run = function (module, runner) {
 	  console.log("");
 
       db.get(module, function(err, doc) {
-		console.log(doc);
+		console.log(util.inspect(doc));
         if(err) {
           doc = {};
           doc.name = module;
@@ -97,11 +98,16 @@ exports.run = function (module, runner) {
         };
 
         db.save(module, doc, function(err, res) {
+		console.log(doc.tests[version]);
+
 			if(err) console.log(err);
 			console.log(res);
 		});
       });
-      npm.commands.uninstall(['../slave/test_modules/node_modules/' + module], Function.prototype);
+
+      // npm.commands.uninstall(['../slave/test_modules/node_modules/' + module], function(err) {
+		  // console.log(arguments);
+	  // });
       exports.spool();
     });
     r.on('error', function (err) {
