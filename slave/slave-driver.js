@@ -67,16 +67,20 @@ exports.run = function (module, runner) {
   // install(here, module_name, cb);
   npm.commands.install(config.cwd, module, function (err, data) {
     var version;
+    // TODO: bug hiding here where version stays undefined e.g. install taglib
     if (Array.isArray(data) && Array.isArray(data[data.length - 1])) {
       version = data[data.length - 1][0];
       version = version.substr(version.indexOf('@') + 1);
+      // console.log('version', version);
     }
+
     r.on('complete', function (success, message) {
       runCount--;
       console.log('complete>', module, success, message, exports.UNAME);
 	  console.log("");
 
       db.get(module, function(err, doc) {
+		console.log(doc);
         if(err) {
           doc = {};
           doc.name = module;

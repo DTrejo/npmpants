@@ -12,9 +12,11 @@
   },
   "dependencies": {
     "cradle": "*",
-	  "expresso": "*",
     "npm": "1.0.27",
-    "underscore": "1.1.7"
+    "underscore": "1.1.7",
+    "whiskey": "0.4.2",
+    "vows" : "0.5.11",
+    "jasmine-node": "1.0.6"
   },
   "devDependencies": {},
   "private": true,
