@@ -36,16 +36,6 @@ app.use(connect.session({
 	store: new connect.session.MemoryStore({ reapInterval: -1 }) 
 }));
 
-app.use(auth({
-	strategies: [
-		auth.Github({
-			appId: config.ghClientId,
-			appSecret: config.ghSecret,
-			callback: "http://localhost/npmpants/"
-		})
-	]
-}));
-
 app.use(express.static(__dirname + '/public'));
 app.use(app.router);
 
@@ -118,28 +108,6 @@ app.get('/api/results', function (req, res) {
   });
 });
 
-
-app.get("/npmpants/authneeded", function(req, res, next) {
-  req.authenticate("github", function(err, auth) {
-    if(err) {
-      console.log(err);
-      res.end("error");
-    } else {
-      if(auth === undefined) {
-        console.log(auth === undefined);
-      } else {
-        console.log("else next()");
-        var purl = url.parse(req.url, true),
-          gh = new github.GitHubApi();
-
-        gh.authenticateOAuth(purl.query['access_token']);
-        gh.getUserApi().getEmails(function() {
-          console.log(arguments);
-        });
-      }
-    }
-  });
-});
 
 console.log('Your highness, at your service:'.yellow
   + ' http://localhost:%d'.magenta, PORT);
