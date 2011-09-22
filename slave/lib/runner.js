@@ -66,7 +66,6 @@ var RunnerPrototype = {
 
 	// cmd[0] should be the executable
     commandLine.args = cmd.slice(1);
-
 	// if an argument contains ./ or * it will likely need to be expanded to a file list
 	if(commandLine.args.join("").match(/(\*|\.\/>)/) !== null) {
 		commandLine.args.forEach(function(arg, i, args) {

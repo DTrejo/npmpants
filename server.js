@@ -14,7 +14,6 @@ var auth = require("connect-auth")
   , cradle = require('cradle')
   , github = require("github")
   , url = require("url")
-  , weldlate = require("weldlate")
 
   // cradle stuff
   , connection = new(cradle.Connection)(config.couchHost, config.couchPort, {
@@ -96,21 +95,21 @@ app.get('/api/modules/:name', function (req, res, next) {
     if (err) console.log(err);
     packageJSON = packageJSON || {};
 
-    // this doesn't YET contain pass/fail information. need to improve test data
     var githubURL = toUrl(name);
       packageJSON.repository = packageJSON.repository || {};
       packageJSON.repository.github = githubURL;
-      db.get(name, function (err, results) {
-		if(err) console.log(err);
-		console.log(results);
-        if (err || err && (err.error === 'not_found')) {
-          res.send(packageJSON);
-        } else {
-          packageJSON['test-results'] = results;
-          res.send(packageJSON);
-        }
-      });
-  });
+    }
+    db.get(name, function (err, results) {
+      if(err) console.log(err);
+      console.log(results);
+      if (err || err && (err.error === 'not_found')) {
+        packageJSON.error = err;
+        res.send(packageJSON);
+      } else {
+        packageJSON['test-results'] = results;
+        res.send(packageJSON);
+      }
+    });
 });
 
 app.get('/api/results', function (req, res) {
@@ -121,25 +120,25 @@ app.get('/api/results', function (req, res) {
 
 
 app.get("/npmpants/authneeded", function(req, res, next) {
-	req.authenticate("github", function(err, auth) {
-		if(err) {
-			console.log(err);
-			res.end("error");
-		} else {
-			if(auth === undefined) {
-				console.log(auth === undefined);
-			} else {
-				console.log("else next()");
-				var purl = url.parse(req.url, true),
-					gh = new github.GitHubApi();
+  req.authenticate("github", function(err, auth) {
+    if(err) {
+      console.log(err);
+      res.end("error");
+    } else {
+      if(auth === undefined) {
+        console.log(auth === undefined);
+      } else {
+        console.log("else next()");
+        var purl = url.parse(req.url, true),
+          gh = new github.GitHubApi();
 
-				gh.authenticateOAuth(purl.query['access_token']);
-				gh.getUserApi().getEmails(function() {
-					console.log(arguments);
-				});
-			}
-		}
-	});
+        gh.authenticateOAuth(purl.query['access_token']);
+        gh.getUserApi().getEmails(function() {
+          console.log(arguments);
+        });
+      }
+    }
+  });
 });
 
 console.log('Your highness, at your service:'.yellow
