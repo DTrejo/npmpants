@@ -157,7 +157,7 @@ var lastDbSeq = 0;
 
 // Get our db's last change id
 console.log("Fetching changes from: " + config.couchHost);
-get(config.couchHost, config.couchPort, '/results/_changes', function (data) {
+get(config.couchHost, config.couchPort || 5984, '/results/_changes', function (data) {
 	console.log("Database returned: ");
 	console.log(data);
   data = JSON.parse(data);
