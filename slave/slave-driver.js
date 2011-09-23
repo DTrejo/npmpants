@@ -104,13 +104,13 @@ exports.run = function (module, runner) {
 
 			if(err) console.log(err);
 			console.log(res);
+			exports.spool();
 		});
       });
 
       // npm.commands.uninstall(['../slave/test_modules/node_modules/' + module], function(err) {
 		  // console.log(arguments);
 	  // });
-      exports.spool();
     });
     r.on('error', function (err) {
       console.log('Something went wrong: ' + err);
