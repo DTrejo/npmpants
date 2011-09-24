@@ -3,8 +3,10 @@ var fs = require('fs')
   , slave = require('./slave-driver')
 
   , modules = [
-    'diff'
-  ]
+      'diff'
+    , 'dnode-protocol'
+    , 'date-utils' // TODO this should be passing!
+    ]
   , tasks = [];
 
 require('colors')
@@ -37,8 +39,9 @@ modules.forEach(function(module) {
 
 async.parallel(tasks, function(err, results) {
   if (err) throw err
+  console.log();
   results.forEach(function(r) {
     console.log(r.name, 'passed?', r.passed);
   });
-  console.log('done.');
+  process.exit(0);
 });
