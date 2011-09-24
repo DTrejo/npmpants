@@ -20,7 +20,8 @@
     "glob", "2.0.8"
   },
   "devDependencies": {
-    "colors": "0.5.0"
+    "colors": "0.5.0",
+    "async": "0.1.10"
   },
   "private": true,
   "main": "slave-driver.js"
