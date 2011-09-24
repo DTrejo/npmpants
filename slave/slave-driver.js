@@ -20,12 +20,14 @@ var db = connection.database('results');
 
 var queue = [], ready = false, getUname;
 
-var config = { loglevel: 'silent',
-               cwd: __dirname + '/test_modules' };
+var npmConfig = {
+  loglevel: 'silent',
+  cwd: __dirname + '/test_modules'
+};
 
 // load needs to be call before any npm.commands can be run
 // but run needs to be call externally so we cannot do install from with in load
-npm.load(config, function () {
+npm.load(npmConfig, function () {
   getUname(function (err, uname) {
     exports.UNAME = uname;
 
@@ -50,13 +52,13 @@ exports.spool = function (module) {
   }
 };
 
-exports.run = function (module, runner) {
+exports.run = function (module, options) {
   // create out runner even if npm isn't ready
-  var r = runner || new Runner();
+  var r = (options && options.runner) || new Runner();
 
   if (!ready) {
     // we're not ready so add the module and the new runner to the que
-    queue.push([module, r]);
+    queue.push([ module, r ]);
 
     // return the runner so other components can subscribe to completed events
     return r;
@@ -65,7 +67,7 @@ exports.run = function (module, runner) {
 
   // ok, npm must be ready now, continue with the install
   // install(here, module_name, cb);
-  npm.commands.install(config.cwd, module, function (err, data) {
+  npm.commands.install(npmConfig.cwd, module, function (err, data) {
     var version;
     // TODO: bug hiding here where version stays undefined e.g. install taglib
     if (Array.isArray(data) && Array.isArray(data[data.length - 1])) {
