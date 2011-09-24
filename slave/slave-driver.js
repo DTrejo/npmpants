@@ -52,18 +52,24 @@ exports.spool = function (module) {
   }
 };
 
-exports.run = function (module, options) {
-  // create out runner even if npm isn't ready
-  var r = (options && options.runner) || new Runner();
+exports.run = function (module, opts) {
+  var options = opts || {};
+  if (options.reportResults == undefined) {
+    options.reportResults = true;
+  } // else leave it alone.
+
+  // create our runner even if npm isn't ready
+  var r = options.runner || new Runner();
 
   if (!ready) {
     // we're not ready so add the module and the new runner to the que
-    queue.push([ module, r ]);
+    options.runner = r;
+    queue.push([ module, options ]);
 
     // return the runner so other components can subscribe to completed events
     return r;
   }
-  console.log('Installing ' + module);
+  // console.log('Installing ' + module);
 
   // ok, npm must be ready now, continue with the install
   // install(here, module_name, cb);
@@ -78,37 +84,40 @@ exports.run = function (module, options) {
 
     r.on('complete', function (success, message) {
       runCount--;
-      console.log('complete>', module, success, message, exports.UNAME);
-      console.log("");
+      // console.log('complete>', module, success, message, exports.UNAME);
+      // console.log("");
 
-      db.get(module, function(err, doc) {
-        console.log(doc);
-        if(err) {
-          doc = {};
-          doc.name = module;
-          doc.tests = {};
-          message = err;
-        }
+      if (options.reportResults === true) {
+        console.log('saving to db. reportResults ==', options.reportResults);
+        db.get(module, function(err, doc) {
+          // console.log(doc);
+          if(err) {
+            doc = {};
+            doc.name = module;
+            doc.tests = {};
+            message = err;
+          }
 
-        if(!doc.tests[version])
-          doc.tests[version] = {};
+          if(!doc.tests[version])
+            doc.tests[version] = {};
 
-        if(!doc.tests[version][exports.UNAME])
-          doc.tests[version][exports.UNAME] = {};
+          if(!doc.tests[version][exports.UNAME])
+            doc.tests[version][exports.UNAME] = {};
 
-        doc.tests[version][exports.UNAME][NODE_VERSION] = {
-          passed: success,
-          message: message
-        };
+          doc.tests[version][exports.UNAME][NODE_VERSION] = {
+            passed: success,
+            message: message
+          };
 
-        db.save(module, doc, function(err, res) {
-          console.log(doc.tests[version]);
+          db.save(module, doc, function(err, res) {
+            // console.log(doc.tests[version]);
 
-          if(err) console.log(err);
-          console.log(res);
-          exports.spool();
+            if(err) console.log(err);
+            // console.log(res);
+            exports.spool();
+          });
         });
-      });
+      }
 
       // npm.commands.uninstall(['../slave/test_modules/node_modules/' + module], function(err) {
       //   console.log(arguments);

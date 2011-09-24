@@ -13,7 +13,7 @@ console.log('Running with NodeJS: ' + process.version);
 
 modules.forEach(function(module) {
   tasks.push(function(cb) {
-    var s = slave.run(module)
+    var s = slave.run(module, { reportResults: false })
       , out = '', err = '';
 
     s.on('out', function(data) {
@@ -27,10 +27,10 @@ modules.forEach(function(module) {
     s.on('complete', function(code, sig) {
       fs.writeFile('./logs/' + module + '.out.log', out);
       fs.writeFile('./logs/' + module + '.err.log', err);
-      console.log('[test.js:out]:\n%s'.green, out);
-      console.log('[test.js:err]:\n%s'.red, err);
-      console.log('test completed with code:', code, 'sig:', sig);
-      cb(null, { name:module, passed: code });
+      // console.log('[test.js:out]:\n%s'.green, out);
+      // console.log('[test.js:err]:\n%s'.red, err);
+      // console.log('test completed with code:', code, 'sig:', sig);
+      cb(null, { name: module, passed: code });
     });
   });
 })
