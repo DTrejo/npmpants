@@ -1,6 +1,6 @@
 var cp = require('child_process'),
     events = require('events'),
-	globSync = require("glob").globSync,
+  globSync = require("glob").globSync,
     path = require('path'),
     util = require('util'),
     _ = require('underscore');
@@ -21,13 +21,13 @@ util.inherits(Runner, events.EventEmitter);
 
 var RunnerPrototype = {
   run: function (cmd, run_path) {
-  	// this is probably the only step really needed for the runner.
-	// everything else can be part of the GenericHandler super-class
+    // this is probably the only step really needed for the runner.
+    // everything else can be part of the GenericHandler super-class
     var handler = this.createTestHandler(cmd, run_path);
 
     handler.on('complete', _.bind(this.onExit, this));
-	handler.on("err", _.bind(this.onErr, this));
-	handler.on("out", _.bind(this.onOut, this));
+    handler.on("err", _.bind(this.onErr, this));
+    handler.on("out", _.bind(this.onOut, this));
   },
 
   createTestHandler: function (cmd, run_path) {
@@ -56,7 +56,7 @@ var RunnerPrototype = {
 
     commandLine.name = cmd[0];
 
-	// check for environment variables
+    // check for environment variables
     while (cmd[0] && cmd[0].indexOf('=') > -1) {
       env = cmd.shift().split('=');
       commandLine.envs[env[0]] = env[1];
@@ -64,23 +64,25 @@ var RunnerPrototype = {
 
     // console.log('Determining test suite: ' + cmd[0]);
 
-	// cmd[0] should be the executable
+    // cmd[0] should be the executable
     commandLine.args = cmd.slice(1);
-	// if an argument contains ./ or * it will likely need to be expanded to a file list
-	if(commandLine.args.join("").match(/(\*|\.\/>)/) !== null) {
-		commandLine.args.forEach(function(arg, i, args) {
-			var match = globSync(path.join(run_path, arg));
-			// yup, found files
-			match.forEach(function(file, index, files) {
-				// make paths absolute, with better cwd for execution this wont be needed
-				files[index] = file.replace(run_path, "");
-			});
-			// replace the orignal arg with the file list
-			args[i] = match;
-		});
-		// flattening will change the file list to a single arg for each file
-		commandLine.args = _(commandLine.args).flatten();
-	}
+    // if an argument contains ./ or * it will likely need to be expanded to a
+    // file list
+    if(commandLine.args.join("").match(/(\*|\.\/>)/) !== null) {
+      commandLine.args.forEach(function(arg, i, args) {
+      var match = globSync(path.join(run_path, arg));
+      // yup, found files
+      match.forEach(function(file, index, files) {
+        // make paths absolute, with better cwd for execution this wont be
+        // needed
+        files[index] = file.replace(run_path, "");
+      });
+      // replace the orignal arg with the file list
+      args[i] = match;
+    });
+    // flattening will change the file list to a single arg for each file
+    commandLine.args = _(commandLine.args).flatten();
+  }
     
     // Set cmd to name of test suite, cmd[0]
     commandLine.cmd = cmd[0];
