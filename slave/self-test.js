@@ -2,14 +2,38 @@ var fs = require('fs')
   , async = require('async')
   , slave = require('./slave-driver')
 
+  // iffy means it might not work on all platforms, but works on most. So sad.
+  // If it doesn't say iffy, it *should* be passing.
+  // TODO test certain modules and make sure they FAIL.
   , modules = [
-      'diff'
-    , 'dnode-protocol'
-    , 'date-utils' // TODO this should be passing!
+    // expresso
+      'diff' // iffy
+    , 'dnode-protocol' // iffy
+
+    // vows
+    , 'date-utils'
+
+    // tap
+    , 'semver'
+
+    // node *.js
+    , 'Journaling-Hash'
+    , 'abbrev'
+    , 'argsparser'
+
+    // nodeunit
+    , 'json-streamify' // iffy
+
+
+    // make test
+    , 'jsontool'
+
+
+    // TODO whiskey, jasmine.
     ]
   , tasks = [];
 
-require('colors')
+require('colors');
 
 console.log('Running with NodeJS: ' + process.version);
 
@@ -32,16 +56,27 @@ modules.forEach(function(module) {
       // console.log('[test.js:out]:\n%s'.green, out);
       // console.log('[test.js:err]:\n%s'.red, err);
       // console.log('test completed with code:', code, 'sig:', sig);
-      cb(null, { name: module, passed: code });
+      cb(null, { name: module, passed: code, err: err, out: out });
     });
   });
-})
+});
 
 async.parallel(tasks, function(err, results) {
-  if (err) throw err
+  if (err) throw err;
   console.log();
+  console.log('===');
+  var win = true;
   results.forEach(function(r) {
-    console.log(r.name, 'passed?', r.passed);
+    // only print if it failed!
+    if (r.passed === false) {
+      console.log(r.name, 'passed?', r.passed);
+      console.log('stdout:', r.out);
+      console.log('stderr:', r.err);
+      win = false;
+    }
   });
+  if (win) {
+    console.log('Success! All modules passed');
+  }
   process.exit(0);
 });
