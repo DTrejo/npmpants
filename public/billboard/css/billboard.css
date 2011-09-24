@@ -14,7 +14,7 @@
   padding-top: 8px;
 }
 
-.result-platforms div.result-node-version {
+.result-platform div.result-node-version {
   margin: 12px;
 }
 
@@ -23,17 +23,23 @@
 	font: normal 120% Merriweather;
 	margin: 0;
 	padding: 0;
+	padding-left: 8px;
 	padding-top: 14px;
 	text-shadow: 0 1px 0 white
 	vertical-align: top;
 }
 
 .result-version {
-  float: left;
-  width: 100%;
+	background-color: lightgray;
+	float: left;
+	padding-left: 8px;
+	width: 100%;
+}
+.result-platforms {
+
 }
 
-.result-platforms {
+.result-platform {
   float: right;
   text-align: center;
 }
