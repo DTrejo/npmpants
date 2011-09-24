@@ -15,7 +15,7 @@ module.exports = TapHandler;
 TapHandler.prototype.run = function(workingDir) {
   var env = _.extend(process.env, this.commandLine.envs);
 
-  console.log(this.commandLine.cmd, this.commandLine.args);
+  // console.log(this.commandLine.cmd, this.commandLine.args);
 
   // last output format wins
   //this.commandLine.args.push('--json');

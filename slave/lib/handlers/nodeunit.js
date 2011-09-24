@@ -18,8 +18,8 @@ NodeunitHandler.prototype.run = function(workingDir) {
   this.commandLine.cmd = path.join(__dirname, "..", "..", "test_suites","lib","node_modules","nodeunit","bin","nodeunit");
 
 
-  console.log("cmd: " + this.commandLine.cmd);
-  console.log("args (" + typeof this.commandLine.args + "): " + this.commandLine.args);
+  // console.log("cmd: " + this.commandLine.cmd);
+  // console.log("args (" + typeof this.commandLine.args + "): " + this.commandLine.args);
 
   var p = cp.spawn(this.commandLine.cmd, this.commandLine.args, {
     cwd: workingDir,

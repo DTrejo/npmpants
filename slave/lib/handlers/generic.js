@@ -9,7 +9,7 @@ function TestHandler(cmd, workingDir) {
 
   this.commandLine = cmd;
 
-  console.log('new "' + this.name +'" TestHandler');
+  // console.log('new "' + this.name +'" TestHandler');
 
   this.freshenTimer();
 
