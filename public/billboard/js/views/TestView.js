@@ -1,8 +1,8 @@
 BB.Views.TestView = BB.Views.BasicView.extend({
-  tagName: "tr",
+  className: "module-section",
   tmpl: '\
-      <td class="module-name"><%=id%></td> \
-      <td class="module-results">\
+      <div class="module-name"><%=id%></div> \
+      <div class="module-results">\
         <% mod=this;if(_.size(doc.tests) > 0) _.each(doc.tests, function(test, version){ %>\
           <div class="result-version">\
             <div class="module-version"><%= version !== "undefined" ? version : "NPM Install Failed" %></div>\
@@ -16,6 +16,6 @@ BB.Views.TestView = BB.Views.BasicView.extend({
             <%});%>\
           </div>\
         <% }); %>\
-      </td>\
+      </div>\
     '
 });
