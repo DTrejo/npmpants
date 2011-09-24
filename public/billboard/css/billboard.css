@@ -10,9 +10,6 @@
 	clear: both;
 }
 
-.module-results div {
-  padding-top: 8px;
-}
 
 .result-platform div.result-node-version {
   margin: 12px;
@@ -33,8 +30,14 @@
 	background-color: lightgray;
 	float: left;
 	padding-left: 8px;
+	padding-top: 4px;
 	width: 100%;
 }
+
+.result-version + .result-version {
+	border-top: 1px dotted #eee;
+}
+
 .result-platforms {
 
 }
