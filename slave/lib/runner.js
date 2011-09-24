@@ -11,7 +11,7 @@ function Runner(cmd, run_path) {
   // if npm.load is not done yet the Runner gets queued
   // once load is done Runner.run will be called directly
   // from the slave driver
-  console.log(process.env.PATH);
+  // console.log(process.env.PATH);
   if (cmd) this.run(cmd, run_path);
 }
 
@@ -37,10 +37,10 @@ var RunnerPrototype = {
     var Handler;
     try {
       Handler = require('./handlers/' + commandLine.name);
-      console.log('created new "' + commandLine.name + '" test handler');
+      // console.log('created new "' + commandLine.name + '" test handler');
     } catch (e) {
       Handler = require('./handlers/generic');
-      console.log('created new "generic" test handler');
+      // console.log('created new "generic" test handler');
     }
 
     return new Handler(commandLine, run_path);
@@ -62,7 +62,7 @@ var RunnerPrototype = {
       commandLine.envs[env[0]] = env[1];
     }
 
-    console.log('Determining test suite: ' + cmd[0]);
+    // console.log('Determining test suite: ' + cmd[0]);
 
 	// cmd[0] should be the executable
     commandLine.args = cmd.slice(1);
