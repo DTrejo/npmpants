@@ -1,12 +1,12 @@
 var config = require("../config"),
-	fs = require('fs'),
-    npm = require('npm'),
-    spawn = require('child_process').spawn,
-    exec = require('child_process').exec,
+  fs = require('fs'),
+  npm = require('npm'),
+  spawn = require('child_process').spawn,
+  exec = require('child_process').exec,
 
-    Runner = require('./lib/runner'),
-    util = require('util'),
-    cradle = require('cradle');
+  Runner = require('./lib/runner'),
+  util = require('util'),
+  cradle = require('cradle');
 
 const NODE_VERSION = process.version;
 
@@ -77,15 +77,15 @@ exports.run = function (module, runner) {
     r.on('complete', function (success, message) {
       runCount--;
       console.log('complete>', module, success, message, exports.UNAME);
-	  console.log("");
+      console.log("");
 
       db.get(module, function(err, doc) {
-		console.log(doc);
+        console.log(doc);
         if(err) {
           doc = {};
           doc.name = module;
           doc.tests = {};
-		  message = err;
+          message = err;
         }
 
         if(!doc.tests[version])
@@ -100,17 +100,17 @@ exports.run = function (module, runner) {
         };
 
         db.save(module, doc, function(err, res) {
-			console.log(doc.tests[version]);
+          console.log(doc.tests[version]);
 
-			if(err) console.log(err);
-			console.log(res);
-			exports.spool();
-		});
+          if(err) console.log(err);
+          console.log(res);
+          exports.spool();
+        });
       });
 
       // npm.commands.uninstall(['../slave/test_modules/node_modules/' + module], function(err) {
-		  // console.log(arguments);
-	  // });
+      //   console.log(arguments);
+      // });
     });
     r.on('error', function (err) {
       console.log('Something went wrong: ' + err);
