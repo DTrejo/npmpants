@@ -1,6 +1,8 @@
 var fs = require('fs')
   , async = require('async')
   , slave = require('./slave-driver')
+  , npm = require('npm')
+  , path = require('path')
 
   // iffy means it might not work on all platforms, but works on most. So sad.
   // If it doesn't say iffy, it *should* be passing.
@@ -31,6 +33,9 @@ var fs = require('fs')
 
     // TODO whiskey, jasmine.
     ]
+
+  // for faster testing
+  // , modules = [ 'date-utils' ]
   , tasks = [];
 
 require('colors');
@@ -63,20 +68,60 @@ modules.forEach(function(module) {
 
 async.parallel(tasks, function(err, results) {
   if (err) throw err;
-  console.log();
-  console.log('===');
-  var win = true;
-  results.forEach(function(r) {
-    // only print if it failed!
-    if (r.passed === false) {
-      console.log(r.name, 'passed?', r.passed);
-      console.log('stdout:', r.out);
-      console.log('stderr:', r.err);
-      win = false;
+
+  testViaNpm(printResults);
+  function printResults(err) {
+    console.log();
+    console.log('===pants runner===');
+    var win = true;
+    results.forEach(function(r) {
+      // only print if it failed!
+      if (r.passed === false) {
+        console.log(r.name, 'passed?', r.passed);
+        console.log('stdout:', r.out);
+        console.log('stderr:', r.err);
+        win = false;
+      }
+    });
+    if (win) {
+      console.log('Success! All modules passed. Full list:');
+      console.log(modules.join(', '));
     }
-  });
-  if (win) {
-    console.log('Success! All modules passed');
+    process.exit(0);
   }
-  process.exit(0);
 });
+
+function testViaNpm(callback) {
+  var npmConfig = {
+      loglevel: 'silent',
+      cwd: path.join(__dirname, 'test_modules', 'node_modules')
+    }
+  , cliTasks = [];
+
+  console.log(npmConfig.cwd);
+
+  npm.load(npmConfig, function (err) {
+    if (err) throw err;
+
+    modules.forEach(function(module) {
+      cliTasks.push(function(cb) {
+        npm.commands.test([path.join(npmConfig.cwd, module)], function(err, d) {
+          cb(null, { err: err, data: d, name: module });
+        });
+      });
+    });
+
+    async.parallel(cliTasks, function(err, results) {
+      if (err) throw err;
+      console.log();
+      console.log('===npm test===');
+      results.forEach(function(r) {
+        console.log(r.name, 'passed?', !r.err);
+        if (r.err) {
+          console.log(r.err);
+        }
+      });
+      callback(null, results);
+    });
+  });
+}
