@@ -1,12 +1,12 @@
 var generic = require("./generic"),
     cp = require("child_process"),
-	path = require("path"),
+    path = require("path"),
     util = require("util"),
     _ = require('underscore');
 
 function NodeunitHandler(cmd) {
-	this.name = "NodeunitHandler";
-	generic.apply(this, arguments);
+  this.name = "NodeunitHandler";
+  generic.apply(this, arguments);
 }
 
 util.inherits(NodeunitHandler, generic);
