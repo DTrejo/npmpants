@@ -127,11 +127,11 @@ exports.run = function (module, opts) {
       console.log('Something went wrong: ' + err);
     });
 
-    if (err) {
-      console.log('Failed to install package.');
-      r.emit('complete', false, err.message);
-      return;
-    }
+    // if (err) {
+    //   console.log('Failed to install package.');
+    //   r.emit('complete', false, err.message);
+    //   return;
+    // }
 
     // all modules are installed locally to prevent external problems
     var module_path = __dirname + '/test_modules/node_modules/' + module;
