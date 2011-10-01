@@ -8,6 +8,7 @@ var auth = require("connect-auth"),
   colors = require('colors'),
   fs = require('fs'),
   nowjs = require('now'),
+  path = require("path"),
   //  nko = require('nko')('fxFY6qeBj18FyrA2'),
   _ = require('underscore'),
   request = require('request'),
@@ -28,6 +29,7 @@ var auth = require("connect-auth"),
 
 // match app routes before serving static file of that name
 
+app.register(".html", require("./lib/weldlate"));
 app.use(connect.middleware.logger());
 app.use(connect.cookieParser());
 app.use(connect.session({
@@ -35,7 +37,7 @@ app.use(connect.session({
   store: new connect.session.MemoryStore({ reapInterval: -1 })
 }));
 
-app.use(express.static(__dirname + '/public'));
+// app.use(express.static(__dirname + '/public'));
 app.use(app.router);
 
 // converts a module name to a github URL for that module, if it exists.
@@ -292,6 +294,30 @@ nowjs.on('connect', function () {
   this.now.addToRecent(recent);
   this.now.addToRecentTests(recentTests);
 });
+
+
+app.set('view engine', 'html');
+// app.set('views', o.root + '/1');
+app.set('view options', {layout: true}); 
+
+var bootTime = new Date;
+
+app.get("/*", function(req, res) {
+	var file = req.url.substr(1);
+	file = path.join(__dirname, file === "" ? "public/index.html" : "public/" + file);
+
+	// basic test showing weld based temlpates
+	if(file.substr(-4) === "html") {
+		res.render(file, {
+			bootTime: "Last start: " + bootTime
+		});
+	} else {
+		// send to static router
+		return req.next();
+	}
+});
+
+app.use(express.static(__dirname + '/public'));
 
 console.log('Your highness, at your service:'.yellow +
   ' http://localhost:%d'.magenta, PORT);
