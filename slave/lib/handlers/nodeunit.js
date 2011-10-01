@@ -1,12 +1,12 @@
 var generic = require("./generic"),
     cp = require("child_process"),
-	path = require("path"),
+    path = require("path"),
     util = require("util"),
     _ = require('underscore');
 
 function NodeunitHandler(cmd) {
-	this.name = "NodeunitHandler";
-	generic.apply(this, arguments);
+  this.name = "NodeunitHandler";
+  generic.apply(this, arguments);
 }
 
 util.inherits(NodeunitHandler, generic);
@@ -15,7 +15,9 @@ module.exports = NodeunitHandler;
 
 NodeunitHandler.prototype.run = function(workingDir) {
   var env = _.extend(process.env, this.commandLine.envs);
-  this.commandLine.cmd = path.join(__dirname, "..", "..", "test_suites","lib","node_modules","nodeunit","bin","nodeunit");
+  this.commandLine.cmd = path.join(
+    __dirname, "..", "..", "node_modules","nodeunit","bin","nodeunit"
+  );
 
 
   // console.log("cmd: " + this.commandLine.cmd);
