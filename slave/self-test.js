@@ -116,7 +116,7 @@ function testViaNpm(callback) {
       console.log();
       console.log('===npm test===');
       results.forEach(function(r) {
-        console.log(r.name, 'passed?', !r.err);
+        console.log('passed?', !r.err, ':', r.name);
         if (r.err) {
           console.log(r.err);
         }
