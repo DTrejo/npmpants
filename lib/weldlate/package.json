@@ -1,0 +1,12 @@
+{
+	"author": "Morgan 'ARR!' Allen",
+	"name": "weldlate",
+	"description": "Simple Weld+jsdom templating",
+	"version": "0.0.1",
+	"dependencies": {
+		"jsdom": "0.2.4",
+		"weld": "v0.2.1"
+	},
+	"engines": ["node"],
+	"main": "./weldlate.js"
+}

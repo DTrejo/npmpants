@@ -127,3 +127,7 @@ h1 a {
 .github-login a {
 	margin-top: 12px;
 }
+
+.bootTime {
+	font-size: 6pt;
+}
