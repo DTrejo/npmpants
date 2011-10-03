@@ -74,7 +74,9 @@ $(document).ready(function() {
     var tests = results.tests;
     for (var moduleVersion in tests) {
       for (var system in tests[moduleVersion]) {
-        for (var nodeVersion in tests[moduleVersion][system]) {
+		var k = _(tests[moduleVersion][system]).keys().sort();
+		for(var i = 0; i < k.length; i++) {
+			var nodeVersion = k[i];
           var data = tests[moduleVersion][system][nodeVersion];
           appendTestResult(moduleVersion, system, nodeVersion, data);
         }

@@ -6,28 +6,45 @@
   color: red;
 }
 
-.module-results div {
-  padding: 8px;
+.module-section {
+	clear: both;
 }
 
-.result-platforms div.result-node-version {
+
+.result-platform div.result-node-version {
   margin: 12px;
 }
 
 .module-name {
-  border-right: 2px outset black;
-  margin: 0;
-  padding: 0;
-  padding-top: 14px;
-  vertical-align: top;
+	color: #0B5C7B;
+	font: normal 120% Merriweather;
+	margin: 0;
+	padding: 0;
+	padding-left: 8px;
+	padding-top: 14px;
+	text-shadow: 0 1px 0 white
+	vertical-align: top;
 }
 
 .result-version {
-  float: left;
+	background-color: lightgray;
+	float: left;
+	padding-left: 8px;
+	padding-top: 4px;
+	width: 100%;
+}
+
+.result-version + .result-version {
+	border-top: 1px dotted #eee;
 }
 
 .result-platforms {
-  float: left;
+
+}
+
+.result-platform {
+  float: right;
+  text-align: center;
 }
 
 #spinner {
@@ -40,4 +57,8 @@
 
 tr td {
   border-top: 1px dashed gray;
+}
+
+.module-version {
+	float: left;
 }

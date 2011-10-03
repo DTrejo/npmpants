@@ -1,5 +1,4 @@
 BB.Views.TestResultsView = BB.Views.BasicView.extend({
-  tagName: 'table',
   render: function() {
   },
   tmpl: '\

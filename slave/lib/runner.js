@@ -1,5 +1,6 @@
 var cp = require('child_process'),
     events = require('events'),
+  globSync = require("glob").globSync,
     path = require('path'),
     util = require('util'),
     _ = require('underscore');
@@ -7,9 +8,10 @@ var cp = require('child_process'),
 function Runner(cmd, run_path) {
   events.EventEmitter.call(this);
 
-  // if npm.load is done yet the Runner gets queued
+  // if npm.load is not done yet the Runner gets queued
   // once load is done Runner.run will be called directly
   // from the slave driver
+  // console.log(process.env.PATH);
   if (cmd) this.run(cmd, run_path);
 }
 
@@ -19,45 +21,32 @@ util.inherits(Runner, events.EventEmitter);
 
 var RunnerPrototype = {
   run: function (cmd, run_path) {
-
+    // this is probably the only step really needed for the runner.
+    // everything else can be part of the GenericHandler super-class
     var handler = this.createTestHandler(cmd, run_path);
 
     handler.on('complete', _.bind(this.onExit, this));
-
-    // run the command and pass everything else from the split as args
-    // (expresso ./tests, node test/test.js)
-    // var env = _.extend(process.env, this.commandLine.envs);
-    // env['NODE_PATH'] = './test_suites:' + process.env['NODE_PATH'];
-
-    // var p = cp.spawn(this.commandLine.cmd, this.commandLine.args, {
-    //   cwd: run_path,
-    //   env: env
-    // });
-
-    // p.stdout.on('data', _.bind(this.onOut, this));
-    // p.stderr.on('data', _.bind(this.onErr, this));
-    // p.on('exit', _.bind(this.onExit, this));
-
-    // this.child = p;
-    // this.flagForDeath();
+    handler.on("err", _.bind(this.onErr, this));
+    handler.on("out", _.bind(this.onOut, this));
   },
 
   createTestHandler: function (cmd, run_path) {
     // split the command apart, cmd[0] will be the executable
-    var commandLine = this.processCmdLine(cmd);
+    var commandLine = this.processCmdLine(cmd, run_path);
 
     var Handler;
     try {
       Handler = require('./handlers/' + commandLine.name);
-      console.log('created new "' + commandLine.name + '" test handler');
+      // console.log('created new "' + commandLine.name + '" test handler');
     } catch (e) {
       Handler = require('./handlers/generic');
+      // console.log('created new "generic" test handler');
     }
 
     return new Handler(commandLine, run_path);
   },
 
-  processCmdLine: function (cmd) {
+  processCmdLine: function (cmd, run_path) {
     var commandLine = {
       args: [],
       envs: {},
@@ -67,63 +56,48 @@ var RunnerPrototype = {
 
     commandLine.name = cmd[0];
 
+    // check for environment variables
     while (cmd[0] && cmd[0].indexOf('=') > -1) {
       env = cmd.shift().split('=');
       commandLine.envs[env[0]] = env[1];
     }
 
-    console.log('Determining test suite: ' + cmd[0]);
+    // console.log('Determining test suite: ' + cmd[0]);
 
-    // TODO
-    // check cmd[0] for = and set appropriate env variables
-
-    // this will prevent the need for global install of a test suite
-    // hopefully helping once we are overloading the suite to grab results
-    /*if (cmd[0] && cmd[0].indexOf("expresso") > -1) {
-      commandLine.cmd = 'expresso'
-    } else if (cmd[0] && cmd[0].indexOf("tap") > -1) {
-      commandLine.envs.TAP = 1;
-      commandLine.cmd = path.join(process.cwd(), '/test_suites/tap/bin/tap');
-    } else {
-      commandLine.cmd = cmd[0];
-    }*/
-
+    // cmd[0] should be the executable
     commandLine.args = cmd.slice(1);
+    // if an argument contains ./ or * it will likely need to be expanded to a
+    // file list
+    if(commandLine.args.join("").match(/(\*|\.\/>)/) !== null) {
+      commandLine.args.forEach(function(arg, i, args) {
+      var match = globSync(path.join(run_path, arg));
+      // yup, found files
+      match.forEach(function(file, index, files) {
+        // make paths absolute, with better cwd for execution this wont be
+        // needed
+        files[index] = file.replace(run_path, "");
+      });
+      // replace the orignal arg with the file list
+      args[i] = match;
+    });
+    // flattening will change the file list to a single arg for each file
+    commandLine.args = _(commandLine.args).flatten();
+  }
     
     // Set cmd to name of test suite, cmd[0]
     commandLine.cmd = cmd[0];
     
     return commandLine;
   },
-  onErr: function (err) {
-    this.resetTimer();
-    console.log('[APP ERROR] ' + err);
-    this.emit('error', err);
+  onErr: function (err, data) {
+    this.emit('err', err);
   },
 
   onExit: function (successful, code) {
-    this.clearTimer();
     this.emit('complete', successful, code);
   },
-
   onOut: function (data) {
-    this.resetTimer();
-    console.log('[APP] ' + data);
-    this.emit('data', data);
-  },
-  kill: function () {
-    this.child.kill();
-  },
-  flagForDeath: function () {
-    this.timer = setTimeout(_.bind(this.kill, this), 15000);
-  },
-  clearTimer: function () {
-    clearTimeout(this.timer);
-    delete this.child;
-  },
-  resetTimer: function () {
-    clearTimeout(this.timer);
-    this.flagForDeath();
+    this.emit('out', data);
   }
 };
 

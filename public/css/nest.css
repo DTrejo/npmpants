@@ -8,6 +8,18 @@ body {
   font-size: 125%;
   background-color: #ddd;
   padding: 1.5em;
+
+  -webkit-box-shadow: 1px 1px 0 #afafaf,
+                      2px 2px 0 #afafaf,
+                      3px 3px 0 #afafaf,
+                      4px 4px 0 #afafaf,
+                      5px 5px 0 #afafaf,
+                      6px 6px 0 #afafaf,
+                      7px 7px 0 #afafaf,
+                      8px 8px 0 #afafaf,
+                      9px 9px 0 #afafaf,
+                      10px 10px 0 #afafaf;
+  -webkit-transform: translate3d(-5px,-5px,0);
 }
 label {
   font-size: 1em;
@@ -83,7 +95,6 @@ h1 a {
 .footer {
   margin-top: 3em;
   padding-top: 1em;
-  border-top: 1px solid #999;
 }
 
 .hidden {
@@ -102,4 +113,17 @@ h1 a {
 
 .recentitem, .recenttestitem {
   padding-right: 10px;
+}
+
+.github-login {
+	background-image: url(../images/github.png);
+	background-position: right;
+	background-repeat: no-repeat;
+	height: 32px;
+	font-size: 10pt;
+	padding-right: 32px;
+}
+
+.github-login a {
+	margin-top: 12px;
 }
