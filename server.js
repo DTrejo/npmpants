@@ -82,22 +82,21 @@ app.get('/api/modules/:name', function (req, res, next) {
     if (err) console.log(err);
     packageJSON = packageJSON || {};
 
-    // this doesn't YET contain pass/fail information. need to improve test data
     var githubURL = toUrl(name);
     if (githubURL) {
       packageJSON.repository = packageJSON.repository || {};
       packageJSON.repository.github = githubURL;
-      db.get(name, function (err, results) {
-        if (err || err && (err.error === 'not_found')) {
-          res.send(packageJSON);
-        } else {
-          packageJSON['test-results'] = results;
-          res.send(packageJSON);
-        }
-      });
-    } else {
-      res.send(packageJSON);
     }
+
+    db.get(name, function (err, results) {
+      if (err || err && (err.error === 'not_found')) {
+        packageJSON.error = err;
+        res.send(packageJSON);
+      } else {
+        packageJSON['test-results'] = results;
+        res.send(packageJSON);
+      }
+    });
   });
 });
 
