@@ -1,30 +1,33 @@
-var fs = require('fs'),
-    npm = require('npm'),
-    spawn = require('child_process').spawn,
-    exec = require('child_process').exec,
+var config = require("../config"),
+  fs = require('fs'),
+  npm = require('npm'),
+  spawn = require('child_process').spawn,
+  exec = require('child_process').exec,
 
-    Runner = require('./lib/runner'),
-    util = require('util'),
-    cradle = require('cradle');
+  Runner = require('./lib/runner'),
+  util = require('util'),
+  cradle = require('cradle');
 
 const NODE_VERSION = process.version;
 
-var connection = new cradle.Connection('hollaback.iriscouch.com', 80, {
+var connection = new cradle.Connection(config.couchHost, config.couchPort, {
   cache: true,
   raw: false,
-  auth: { username: 'hollaback', password: 'momasaidknockyouout' }
+  auth: { username: config.couchUser, password: config.couchPass }
 });
 
 var db = connection.database('results');
 
 var queue = [], ready = false, getUname;
 
-var config = { loglevel: 'silent',
-               cwd: __dirname + '/test_modules' };
+var npmConfig = {
+  loglevel: 'silent',
+  cwd: __dirname + '/test_modules'
+};
 
 // load needs to be call before any npm.commands can be run
 // but run needs to be call externally so we cannot do install from with in load
-npm.load(config, function () {
+npm.load(npmConfig, function () {
   getUname(function (err, uname) {
     exports.UNAME = uname;
 
@@ -45,27 +48,32 @@ exports.spool = function (module) {
   }
   while (spool.length && runCount < 10) {
     runCount++;
-    var next = spool.shift();
-    exports.run(next);
+    exports.run(spool.shift());
   }
 };
 
-exports.run = function (module, runner) {
-  // create out runner even if npm isn't ready
-  var r = runner || new Runner();
+exports.run = function (module, opts) {
+  var options = opts || {};
+  if (options.reportResults == undefined) {
+    options.reportResults = true;
+  } // else leave it alone.
+
+  // create our runner even if npm isn't ready
+  var r = options.runner || new Runner();
 
   if (!ready) {
     // we're not ready so add the module and the new runner to the que
-    queue.push([module, r]);
+    options.runner = r;
+    queue.push([ module, options ]);
 
     // return the runner so other components can subscribe to completed events
     return r;
   }
-  console.log('Installing ' + module);
+  // console.log('Installing ' + module);
 
   // ok, npm must be ready now, continue with the install
   // install(here, module_name, cb);
-  npm.commands.install(config.cwd, module, function (err, data) {
+  npm.commands.install(npmConfig.cwd, module, function (err, data) {
     var version;
     // TODO: bug hiding here where version stays undefined e.g. install taglib
     if (Array.isArray(data) && Array.isArray(data[data.length - 1])) {
@@ -76,40 +84,54 @@ exports.run = function (module, runner) {
 
     r.on('complete', function (success, message) {
       runCount--;
-      console.log('complete>', module, success, message, exports.UNAME);
+      // console.log('complete>', module, success, message, exports.UNAME);
+      // console.log("");
 
-      db.get(module, function(err, doc) {
-        if(err) {
-          doc = {};
-          doc.name = module;
-          doc.tests = {};
-        }
+      if (options.reportResults === true) {
+        console.log('saving to db. reportResults ==', options.reportResults);
+        db.get(module, function(err, doc) {
+          // console.log(doc);
+          if(err) {
+            doc = {};
+            doc.name = module;
+            doc.tests = {};
+            message = err;
+          }
 
-        if(!doc.tests[version])
-          doc.tests[version] = {};
+          if(!doc.tests[version])
+            doc.tests[version] = {};
 
-        if(!doc.tests[version][exports.UNAME])
-          doc.tests[version][exports.UNAME] = {};
+          if(!doc.tests[version][exports.UNAME])
+            doc.tests[version][exports.UNAME] = {};
 
-        doc.tests[version][exports.UNAME][NODE_VERSION] = {
-          passed: success,
-          message: message
-        };
+          doc.tests[version][exports.UNAME][NODE_VERSION] = {
+            passed: success,
+            message: message
+          };
 
-        db.save(module, doc);
-      });
-      npm.commands.uninstall(['../slave/test_modules/node_modules/' + module], Function.prototype);
-      exports.spool();
+          db.save(module, doc, function(err, res) {
+            // console.log(doc.tests[version]);
+
+            if(err) console.log(err);
+            // console.log(res);
+            exports.spool();
+          });
+        });
+      }
+
+      // npm.commands.uninstall(['../slave/test_modules/node_modules/' + module], function(err) {
+      //   console.log(arguments);
+      // });
     });
     r.on('error', function (err) {
       console.log('Something went wrong: ' + err);
     });
 
-    if (err) {
-      console.log('Failed to install package.');
-      r.emit('complete', false, err.message);
-      return;
-    }
+    // if (err) {
+    //   console.log('Failed to install package.');
+    //   r.emit('complete', false, err.message);
+    //   return;
+    // }
 
     // all modules are installed locally to prevent external problems
     var module_path = __dirname + '/test_modules/node_modules/' + module;

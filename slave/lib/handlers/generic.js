@@ -1,15 +1,15 @@
-var cp = require('child_process'),
-    events = require('events'),
-    path = require('path'),
-    util = require('util'),
-    _ = require('underscore');
+var cp = require("child_process"),
+    events = require("events"),
+    path = require("path"),
+    util = require("util"),
+    _ = require("underscore");
 
 function TestHandler(cmd, workingDir) {
   events.EventEmitter.call(this);
 
   this.commandLine = cmd;
 
-  console.log('new "' + cmd.name + '" TestHandler');
+  // console.log('new "' + this.name +'" TestHandler');
 
   this.freshenTimer();
 
@@ -55,11 +55,13 @@ TestHandler.prototype.killProcess = function () {
 };
 
 TestHandler.prototype.onErr = function (err, data) {
-  this.freshenTimer();
+	this.emit("err", err, data);
+	this.freshenTimer();
 };
 
 TestHandler.prototype.onStd = function (data) {
-  this.freshenTimer();
+	this.emit("out", data);
+ 	this.freshenTimer();
 };
 
 TestHandler.prototype.onExit = function (code, sig) {

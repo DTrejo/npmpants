@@ -1,40 +1,44 @@
 // boring requires
-var auth = require("connect-auth")
-  , connect = require("connect")
-  , express = require('express')
-  , http = require('http')
-  , app = express.createServer()
-  , colors = require('colors')
-  , fs = require('fs')
-  , nowjs = require('now')
-  , nko = require('nko')('fxFY6qeBj18FyrA2')
-  , _ = require('underscore')
-  , request = require('request')
-  , cradle = require('cradle')
+var auth = require("connect-auth"),
+  config = require("./config"),
+  connect = require("connect"),
+  express = require('express'),
+  http = require('http'),
+  app = express.createServer(),
+  colors = require('colors'),
+  fs = require('fs'),
+  nowjs = require('now'),
+  path = require("path"),
+  //  nko = require('nko')('fxFY6qeBj18FyrA2'),
+  _ = require('underscore'),
+  request = require('request'),
+  cradle = require('cradle'),
+  github = require("github"),
+  url = require("url"),
 
   // cradle stuff
-  , connection = new(cradle.Connection)('hollaback.iriscouch.com', 80, {
-      cache: true
-    , raw: false
-    , auth: { username: 'hollaback', password: 'momasaidknockyouout' }
-  })
-  , db = connection.database('results')
-
+  connection = new(cradle.Connection)(config.couchHost, config.couchPort, {
+    cache: true,
+    raw: false,
+    auth: { username: config.couchUser, password: config.couchPass }
+  }),
+  db = connection.database('results'),
   // constants
-  , PORT = parseInt(process.env.PORT, 10) || 8000
-  , config = require("./config")
-  ;
+  PORT = parseInt(process.env.PORT, 10) || 8000
+;
 
 // match app routes before serving static file of that name
+
+app.register(".html", require("./lib/weldlate"));
+app.use(connect.middleware.logger());
+app.use(connect.cookieParser());
+app.use(connect.session({
+  secret: 'baahlblbah',
+  store: new connect.session.MemoryStore({ reapInterval: -1 })
+}));
+
+// app.use(express.static(__dirname + '/public'));
 app.use(app.router);
-app.use(express.static(__dirname + '/public'));
-app.use(auth(
-	auth.Github({
-		appId: config.ghClientId,
-		appSecret: config.ghSecret,
-		callback: console.log
-	})
-));
 
 // converts a module name to a github URL for that module, if it exists.
 // caches a map of moduleName --> url.
@@ -44,16 +48,16 @@ function toUrl(moduleName) {
     console.time('generating toUrl map');
     nameToUrl = {};
     // lazily create the map. first request will be slow, but it's ok.
-    var data = require('./public/json/packages.json').data
-      , packages = data.packages
-      , urls = data.urls
-      , i = 0
-      , link = ''
-      , pName;
+    var data = require('./public/json/packages.json').data,
+    packages = data.packages,
+    urls = data.urls,
+    i = 0,
+    link = '',
+    pName;
 
     for (i = 0; i < packages.length; i++) {
-      pName = packages[i][0];
-      nameToUrl[pName] = 'https://github.com/' + urls[i];
+    pName = packages[i][0];
+    nameToUrl[pName] = 'https://github.com/' + urls[i];
     }
     console.timeEnd('generating toUrl map');
   }
@@ -83,12 +87,13 @@ app.get('/api/modules/:name', function (req, res, next) {
     packageJSON = packageJSON || {};
 
     var githubURL = toUrl(name);
-    if (githubURL) {
-      packageJSON.repository = packageJSON.repository || {};
-      packageJSON.repository.github = githubURL;
-    }
+    packageJSON.repository = packageJSON.repository || {};
+    packageJSON.repository.github = githubURL;
 
     db.get(name, function (err, results) {
+      if(err)
+        console.log(err);
+      console.log(results);
       if (err || err && (err.error === 'not_found')) {
         packageJSON.error = err;
         res.send(packageJSON);
@@ -101,17 +106,10 @@ app.get('/api/modules/:name', function (req, res, next) {
 });
 
 app.get('/api/results', function (req, res) {
-  get('hollaback.iriscouch.com', 80, '/results/_all_docs?include_docs=true', function (data) {
+  get(config.couchHost, config.couchPort, '/results/_all_docs?include_docs=true', function (data) {
     res.send(JSON.stringify(JSON.parse(data).rows));
   });
 });
-
-console.log('Your highness, at your service:'.yellow
-  + ' http://localhost:%d'.magenta, PORT);
-
-app.listen(PORT);
-
-
 
 
 // Stream from our db for realtime test results updates to clients
@@ -120,15 +118,17 @@ var everyone = nowjs.initialize(app);
 var lastDbSeq = 0;
 
 // Get our db's last change id
-get('hollaback.iriscouch.com', 80, '/results/_changes', function (data) {
+console.log("Fetching changes from: " + config.couchHost);
+get(config.couchHost, config.couchPort || 5984, '/results/_changes', function (data) {
+  console.log("Database returned: ");
+  console.log(data);
   data = JSON.parse(data);
   lastDbSeq = data.last_seq - 10;
   getDbChanges();
 });
 
 function getDbChanges() {
-  http.get({
-    host: 'hollaback.iriscouch.com',
+  http.get({host: config.couchHost,
     port: 80,
     path: '/results/_changes?feed=continuous&since=' + (lastDbSeq)
   }, function (res) {
@@ -138,22 +138,26 @@ function getDbChanges() {
       try {
         var data = JSON.parse(cur);
         var newSeq = data.seq || data.last_seq;
+
         if (newSeq > lastDbSeq) {
           lastDbSeq = newSeq;
         }
+
         if (data.hasOwnProperty('id')) {
           updateResults(data);
         }
+
         cur = '';
       } catch (e) {}
     });
+
     res.on('end', getDbChanges);
     res.on('error', getDbChanges);
   });
 }
 
 function updateResults(data) {
-  get('hollaback.iriscouch.com', 80, '/results/'+data.id, function(res){
+  get(config.couchHost, config.couchPort, '/results/'+data.id, function(res){
     res = JSON.parse(res);
     if (res.hasOwnProperty('error')) {
       console.log(data.id, res);
@@ -292,4 +296,29 @@ nowjs.on('connect', function () {
 });
 
 
+app.set('view engine', 'html');
+// app.set('views', o.root + '/1');
+app.set('view options', {layout: true}); 
 
+var bootTime = new Date;
+
+app.get("/*", function(req, res) {
+	var file = req.url.substr(1);
+	file = path.join(__dirname, file === "" ? "public/index.html" : "public/" + file);
+
+	// basic test showing weld based temlpates
+	if(file.substr(-4) === "html") {
+		res.render(file, {
+			bootTime: "Last start: " + bootTime
+		});
+	} else {
+		// send to static router
+		return req.next();
+	}
+});
+
+app.use(express.static(__dirname + '/public'));
+
+console.log('Your highness, at your service:'.yellow +
+  ' http://localhost:%d'.magenta, PORT);
+app.listen(PORT);

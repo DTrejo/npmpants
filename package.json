@@ -1,27 +1,28 @@
 {
-  "author": "Trejo, Zhang, Morgan, Wang <dtrejo@cs.brown.edu>",
-  "name": "hollaback",
-  "description": "CPANTS for Node",
-  "version": "0.0.1",
-  "homepage": "http://hollaback.no.de/",
-  "repository": {
-    "url": "https://github.com/nko2/hollaback"
-  },
-  "engines": {
-    "node": "~v0.4.9"
-  },
-  "dependencies": {
-    "nko": "~0.1.0",
-    "express": "*",
-    "colors":"0.5.0",
-    "now": "0.7.4",
-    "underscore": "1.1.7",
-    "request": "2.1.1",
-    "cradle": "0.5.5",
-    "connect-auth": "0.4.1",
-    "connect": "1.7.1"
-  },
-  "devDependencies": {},
-  "private": true
+	"author": "Trejo, Zhang, Morgan, Wang <dtrejo@cs.brown.edu>",
+	"name": "hollaback",
+	"description": "CPANTS for Node",
+	"version": "0.0.1",
+	"homepage": "http://hollaback.no.de/",
+	"repository": {
+		"url": "https://github.com/nko2/hollaback"
+	},
+	"engines": {
+		"node": "~v0.4.9"
+	},
+	"dependencies": {
+		"colors": "0.5.0",
+		"cli": "*",
+		"connect": "1.7.1",
+		"connect-auth": "0.4.1",
+		"cradle": "0.5.5",
+		"express": "*",
+		"now": "0.7.4",
+		"request": "2.1.1",
+		"underscore": "1.1.7",
+		"github": "0.0.6",
+		"weldlate": "*"
+	},
+	"devDependencies": {},
+	"private": true
 }
-
