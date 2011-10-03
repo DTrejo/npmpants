@@ -1,4 +1,3 @@
-=======
 npmpants Installation
 ===
 
@@ -47,3 +46,4 @@ Make sure you did step 2 of the install.
 **How to fix cradle not working on .5 node b/c of require.paths**:
 
     NODE_PATH="path/to/cradle:${NODE_PATH}"
+
