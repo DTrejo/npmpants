@@ -11,10 +11,12 @@ var auth = require("connect-auth"),
   path = require("path"),
   //  nko = require('nko')('fxFY6qeBj18FyrA2'),
   _ = require('underscore'),
-  request = require('request'),
   cradle = require('cradle'),
   github = require("github"),
   url = require("url"),
+
+  // routes
+  api = require('./api')
 
   // cradle stuff
   connection = new(cradle.Connection)(config.couchHost, config.couchPort, {
@@ -27,90 +29,28 @@ var auth = require("connect-auth"),
   PORT = parseInt(process.env.PORT, 10) || 8000
 ;
 
-// match app routes before serving static file of that name
+//
+// API
+//
+app.get('/api/results', api.results);
+app.get('/api/modules/:name', api.modules);
 
+
+//
+// Configuration
+//
 app.register(".html", require("./lib/weldlate"));
-app.use(connect.middleware.logger());
+// app.use(connect.middleware.logger());
 app.use(connect.cookieParser());
 app.use(connect.session({
   secret: 'baahlblbah',
   store: new connect.session.MemoryStore({ reapInterval: -1 })
 }));
-
-// app.use(express.static(__dirname + '/public'));
 app.use(app.router);
 
-// converts a module name to a github URL for that module, if it exists.
-// caches a map of moduleName --> url.
-var nameToUrl;
-function toUrl(moduleName) {
-  if (nameToUrl === undefined) {
-    console.time('generating toUrl map');
-    nameToUrl = {};
-    // lazily create the map. first request will be slow, but it's ok.
-    var data = require('./public/json/packages.json').data,
-    packages = data.packages,
-    urls = data.urls,
-    i = 0,
-    link = '',
-    pName;
-
-    for (i = 0; i < packages.length; i++) {
-    pName = packages[i][0];
-    nameToUrl[pName] = 'https://github.com/' + urls[i];
-    }
-    console.timeEnd('generating toUrl map');
-  }
-  // use the map
-  return nameToUrl[moduleName];
-}
-
-// goes to npmjs.org and returns the package.json for a given module.
-function getPackageJSON(moduleName, cb) {
-  console.time('getPackageJSON');
-  var url = 'http://search.npmjs.org/api/' + moduleName;
-  request(url, function (error, response, body) {
-    if (!error && response.statusCode === 200) {
-      console.timeEnd('getPackageJSON');
-      cb(null, JSON.parse(body));
-    } else {
-      console.timeEnd('getPackageJSON');
-      cb(error);
-    }
-  });
-}
-
-app.get('/api/modules/:name', function (req, res, next) {
-  var name = req.params.name;
-  getPackageJSON(name, function (err, packageJSON) {
-    if (err) console.log(err);
-    packageJSON = packageJSON || {};
-
-    var githubURL = toUrl(name);
-    packageJSON.repository = packageJSON.repository || {};
-    packageJSON.repository.github = githubURL;
-
-    db.get(name, function (err, results) {
-      if(err)
-        console.log(err);
-      console.log(results);
-      if (err || err && (err.error === 'not_found')) {
-        packageJSON.error = err;
-        res.send(packageJSON);
-      } else {
-        packageJSON['test-results'] = results;
-        res.send(packageJSON);
-      }
-    });
-  });
-});
-
-app.get('/api/results', function (req, res) {
-  get(config.couchHost, config.couchPort, '/results/_all_docs?include_docs=true', function (data) {
-    res.send(JSON.stringify(JSON.parse(data).rows));
-  });
-});
-
+//
+// NowJS stuff
+//
 
 // Stream from our db for realtime test results updates to clients
 var everyone = nowjs.initialize(app);
@@ -298,7 +238,7 @@ nowjs.on('connect', function () {
 
 app.set('view engine', 'html');
 // app.set('views', o.root + '/1');
-app.set('view options', {layout: true}); 
+app.set('view options', {layout: true});
 
 var bootTime = new Date;
 
