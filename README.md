@@ -47,3 +47,7 @@ Make sure you did step 2 of the install.
 
     NODE_PATH="path/to/cradle:${NODE_PATH}"
 
+Coding style
+===
+- comma last
+- tabs
