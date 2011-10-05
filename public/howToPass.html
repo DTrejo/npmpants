@@ -1,9 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv=Content-type content="text/html; charset=utf-8">
+  <title>npmpants — CPANTS for Node</title>
+  <link rel="stylesheet" src="//raw.github.com/jonathantneal/normalize.css/master/normalize.min.css">
+  <link href='http://fonts.googleapis.com/css?family=Ubuntu' rel='stylesheet'>
+  <link rel="stylesheet" href="/css/aristo.css" type="text/css">
+  <link rel="stylesheet" href="/css/nest.css" type="text/css">
+
+</head>
+<body>
+  <noscript>
+    <p>Please enable javascript.</p>
+  </noscript>
+
+  <h1><a href="/">npmpants — CPANTS for Node</a></h1>
+
   <h2>How to get your module tested</h2>
   <ol>
     <li><a href="http://npmjs.org/doc/developers.html">Publish your package to
     npm</a></li>
     <li>Make sure sure your <code>package.json</code> has a
-      <code>scripts.test</code> command:
+      <code>scripts.test</code> command, like so:
       <pre>"scripts": {
   "test": "nodeunit test.js"
 }</pre>
@@ -22,3 +40,16 @@
       label your tests as failed (sorry!).
     </li>
   </ol>
+
+  <div class="footer">
+    <p>Created by David Trejo, Eric Zhang, Morgan Allen, and Steve Wang for <a
+    href="http://nodeknockout.com/teams/hollaback">Node Knockout</a>.</p>
+  </div>
+
+  <!-- defer loads scripts in order + async. Does not block DOM rendering -->
+  <script src="/js/jquery.js" defer></script>
+  <script src="/js/underscore.js" defer></script>
+  <script src="/js/jquery.ba-hashchange.min.js" defer></script>
+  <script src="/js/modules.js" defer></script>
+</body>
+</html>
