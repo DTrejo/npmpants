@@ -13,9 +13,6 @@ var auth = require("connect-auth"),
 	github = require("github"),
 	url = require("url"),
 
-	// routes
-	api = require('./api'),
-
 	// cradle stuff
 	connection = new(cradle.Connection)(config.couchHost, config.couchPort, {
 		cache: true,
@@ -27,16 +24,6 @@ var auth = require("connect-auth"),
 	PORT = parseInt(process.env.PORT, 10) || 8000
 ;
 
-//
-// API
-//
-app.get('/api/results', api.results);
-app.get('/api/modules/:name', api.modules);
-
-//
-// NowJS
-//
-require('./realtime').init(app);
 
 //
 // Configuration
@@ -74,6 +61,14 @@ app.get("/*", function(req, res) {
 		return req.next();
 	}
 });
+
+// API
+require("./lib/api").init(app);
+
+//
+// NowJS
+//
+require('./lib/realtime').init(app);
 
 console.log('Your highness, at your service:'.yellow +
 	' http://localhost:%d'.magenta, PORT);
