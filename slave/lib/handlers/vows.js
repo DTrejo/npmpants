@@ -36,7 +36,7 @@ VowsHandler.prototype.run = function(workingDir) {
 VowsHandler.prototype.output = '';
 VowsHandler.prototype.onStd = function (data) {
   this.output += data;
-}
+};
 
 VowsHandler.prototype.onErr = function(err, data) {
   // console.log("error in VowsHandler", err.toString(), data);

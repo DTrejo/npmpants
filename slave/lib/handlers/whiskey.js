@@ -1,4 +1,5 @@
 var generic = require("./generic"),
+    path = require('path'),
     cp = require("child_process"),
     util = require("util"),
     _ = require('underscore');
@@ -14,8 +15,10 @@ module.exports = WhiskeyHandler;
 
 WhiskeyHandler.prototype.run = function(workingDir) {
   var env = _.extend(process.env, this.commandLine.envs);
-
-  // console.log(this.commandLine.cmd, this.commandLine.args);
+  this.commandLine.cmd = path.join(
+    __dirname, "..", "..", "node_modules","whiskey","bin","whiskey"
+  );
+  console.log(this.commandLine.cmd, this.commandLine.args);
 
   // last output format wins
   this.commandLine.args.push('--json');
@@ -33,7 +36,7 @@ WhiskeyHandler.prototype.run = function(workingDir) {
 WhiskeyHandler.prototype.output = '';
 WhiskeyHandler.prototype.onStd = function (data) {
   this.output += data;
-}
+};
 
 WhiskeyHandler.prototype.onErr = function(err, data) {
   // console.log("error in WhiskeyHandler", err.toString(), data);

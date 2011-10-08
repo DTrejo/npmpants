@@ -33,7 +33,7 @@ ExpressoHandler.prototype.run = function(workingDir) {
 ExpressoHandler.prototype.output = '';
 ExpressoHandler.prototype.onStd = function (data) {
   this.output += data;
-}
+};
 
 ExpressoHandler.prototype.onErr = function(err, data) {
   // console.log("error in ExpressoHandler", err.toString(), data);
