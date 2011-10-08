@@ -23,7 +23,9 @@ var fs = require('fs')
 
 
 ;function getPackages() {
-  return JSON.parse(fs.readFileSync('../emailscripts/real.json', 'utf8')).rows;
+  return JSON.parse(
+    fs.readFileSync('../../emailer-npmpants/real.json', 'utf8')
+  ).rows
 }
 
 var fcount = {
