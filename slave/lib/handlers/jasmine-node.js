@@ -1,4 +1,5 @@
 var generic = require("./generic"),
+    path = require('path'),
     cp = require("child_process"),
     util = require("util"),
     _ = require('underscore');
@@ -14,8 +15,9 @@ module.exports = JasmineNodeHandler;
 
 JasmineNodeHandler.prototype.run = function(workingDir) {
   var env = _.extend(process.env, this.commandLine.envs);
-
-  // console.log(this.commandLine.cmd, this.commandLine.args);
+  this.commandLine.cmd = path.join(
+    __dirname, "..", "..", "node_modules","jasmine-node","bin","jasmine-node"
+  );
 
   // last output format wins
   //this.commandLine.args.push('--json');
@@ -33,7 +35,7 @@ JasmineNodeHandler.prototype.run = function(workingDir) {
 JasmineNodeHandler.prototype.output = '';
 JasmineNodeHandler.prototype.onStd = function (data) {
   this.output += data;
-}
+};
 
 JasmineNodeHandler.prototype.onErr = function(err, data) {
   // console.log("error in JasmineNodeHandler", err.toString(), data);

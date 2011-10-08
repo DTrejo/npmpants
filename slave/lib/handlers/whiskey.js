@@ -36,7 +36,7 @@ WhiskeyHandler.prototype.run = function(workingDir) {
 WhiskeyHandler.prototype.output = '';
 WhiskeyHandler.prototype.onStd = function (data) {
   this.output += data;
-}
+};
 
 WhiskeyHandler.prototype.onErr = function(err, data) {
   // console.log("error in WhiskeyHandler", err.toString(), data);
