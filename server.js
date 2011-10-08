@@ -2,14 +2,14 @@
 var auth = require("connect-auth"),
 	config = require("./config"),
 	connect = require("connect"),
-	express = require('express'),
+	express = require("express"),
 	app = express.createServer(),
-	colors = require('colors'),
-	fs = require('fs'),
+	colors = require("colors"),
+	fs = require("fs"),
 	path = require("path"),
-	//	nko = require('nko')('fxFY6qeBj18FyrA2'),
-	_ = require('underscore'),
-	cradle = require('cradle'),
+	//	nko = require("nko")("fxFY6qeBj18FyrA2"),
+	_ = require("underscore"),
+	cradle = require("cradle"),
 	github = require("github"),
 	url = require("url"),
 
@@ -19,24 +19,34 @@ var auth = require("connect-auth"),
 		raw: false,
 		auth: { username: config.couchUser, password: config.couchPass }
 	}),
-	db = connection.database('results'),
+	db = connection.database("results"),
 	// constants
 	PORT = parseInt(process.env.PORT, 10) || 8000
 ;
 
-app.register(".html", require("./lib/weldlate"));
-app.use(connect.middleware.logger());
-app.use(connect.cookieParser());
-app.use(connect.session({
-	secret: 'baahlblbah',
-	store: new connect.session.MemoryStore({ reapInterval: -1 })
-}));
+app.configure(function() {
+	app.register(".html", require("./lib/weldlate"));
+	app.use(connect.middleware.logger());
+	app.use(connect.cookieParser());
+	app.use(connect.session({
+		secret: "baahlblbah",
+		store: new connect.session.MemoryStore({ reapInterval: -1 })
+	}));
 
-app.use(app.router);
+	app.use(app.router);
 
-app.set('view engine', 'html');
-// app.set('views', o.root + '/1');
-app.set('view options', {layout: true}); 
+	app.set("view engine", "html");
+	app.set("views", "/public");
+	app.set("view options", {
+		layout: "layout-dev.html"
+	});
+});
+
+app.configure("production", function() {
+	app.set("view options", {
+		layout: true // layout.html
+	});
+});
 
 var bootTime = new Date;
 
