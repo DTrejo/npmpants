@@ -31,7 +31,11 @@ var fs = require('fs')
     , 'jsontool'
 
 
-    // TODO whiskey, jasmine.
+    // whiskey
+    // none really that don't do silly things in their test command.
+
+    // jasmine
+    , 'jquery-tmpl-jst'
     ]
 
   // for faster testing
