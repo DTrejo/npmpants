@@ -48,8 +48,17 @@ app.configure("production", function() {
 	});
 });
 
-var bootTime = new Date;
+//
+// API
+//
+require("./lib/api").init(app);
 
+//
+// NowJS
+//
+require('./lib/realtime').init(app);
+
+var bootTime = new Date;
 app.get("/*", function(req, res) {
 	var file = req.url.substr(1);
 	file = path.join(__dirname, file === "" ? "public/index.html" : "public/" + file);
@@ -66,13 +75,6 @@ app.get("/*", function(req, res) {
 });
 
 app.use(express.static(__dirname + '/public'));
-// API
-require("./lib/api").init(app);
-
-//
-// NowJS
-//
-require('./lib/realtime').init(app);
 
 console.log('Your highness, at your service:'.yellow +
 	' http://localhost:%d'.magenta, PORT);
