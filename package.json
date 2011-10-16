@@ -20,7 +20,8 @@
 		"now": "0.7.4",
 		"request": "2.1.1",
 		"underscore": "1.1.7",
-		"github": "0.0.6"
+		"github": "0.0.6",
+		"jsdom": "0.2.7"
 	},
 	"devDependencies": {},
 	"private": true
