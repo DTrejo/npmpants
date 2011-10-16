@@ -51,7 +51,7 @@ app.configure("production", function() {
 //
 // API
 //
-require("./lib/api").init(app);
+require("./lib/api").init(app, db);
 
 //
 // NowJS
