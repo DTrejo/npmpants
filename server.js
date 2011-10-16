@@ -78,4 +78,6 @@ app.use(express.static(__dirname + '/public'));
 
 console.log('Your highness, at your service:'.yellow +
 	' http://localhost:%d'.magenta, PORT);
+console.log('couch info:', config.couchHost, config.couchPort
+	, config.couchUser);
 app.listen(PORT);
