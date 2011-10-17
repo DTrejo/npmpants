@@ -1,15 +1,12 @@
 var args = require("argsparser").parse(),
 	npmRegistry = require("./npmRegistry"),
-    slave = require('../slave'),
+	slave = require('../slave'),
 
 	testSuite = args["--suite"] ? args["--suite"] : false;
 
 /**
  * Some magic function that takes the URL of a tarball. Should
  * download, extract, run tests, and whatnot.
-
- * TODO: Replace with a reference to the actual function, some time
- * after it's been written.
  */
 
 if(testSuite) {
@@ -26,9 +23,7 @@ function spoolPackage(package) {
 	// TODO may not actually be latest
 	var latest = package.doc.versions[versions.pop()];
 
-	if (
-		(latest && latest.scripts && latest.scripts.test !== undefined)
-	) {
+	if (latest && latest.scripts && latest.scripts.test !== undefined) {
 		if(testSuite === false || latest.scripts.test.indexOf(testSuite) > -1) {
 			console.log("Spooling test for " + package.id + " " + latest.version);
 			process.nextTick(function () {
@@ -46,7 +41,7 @@ var interpretJSON = function (obj) {
 		spoolPackage(package);
 	}
 	// obj.rows.forEach(function (el, i) {
-	// 	spoolPackage(el);
+	//	spoolPackage(el);
 	// });
 };
 
