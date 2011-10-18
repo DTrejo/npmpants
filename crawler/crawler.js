@@ -2,9 +2,14 @@ var args = require("argsparser").parse(),
 	request = require('request'),
 	JSONStream = require('JSONStream'),
 	slave = require('../slave'),
-	testSuite = args["--suite"] ? args["--suite"] : false,
 	semver = require('semver'),
-	async = require('async')
+	async = require('async'),
+
+	// optional flags
+	testSuite = args["--suite"] || false,
+	uninstallAfter = args["--uninstall-after"] || false, // not sure if this works
+	limit = args['--limit'] || false,
+	reportResults = args['--reportResults'] || false
 ;
 
 /**
@@ -13,18 +18,35 @@ var args = require("argsparser").parse(),
 	*/
 
 if (testSuite) {
-	console.log("Only running tests for " + testSuite);
+	console.log("YES only running tests for " + testSuite);
+}
+if (reportResults) {
+	console.log('YES reporting results to couchDB.');
+} else {
+	console.log('NOT reporting results to couchDB.');
+}
+if (uninstallAfter) {
+	console.log('YES uninstalling each package after testing');
+} else {
+	console.log('NOT uninstalling each package after testing');
 }
 
 var parser = JSONStream.parse(['rows', /./]),
-	req = request({
-		url: 'http://search.npmjs.org/api/_all_docs?include_docs=true&limit=100'
-	})
-;
-tasks = [];
+	url = 'http://search.npmjs.org/api/_all_docs?include_docs=true';
+
+if (limit) {
+	url += '&limit=' + limit;
+	console.log('Limiting to', limit, 'modules.');
+} else {
+	console.log('No --limit specified; fetching ALL docs from npm\'s couchdb!');
+}
+
+var req = request({ url: url }),
+	tasks = [];
+
 parser.on('data', function(data) {
 	tasks.push(async.apply(processDoc, data));
-	console.log('pushed', data.id);
+	// console.log('pushed', data.id);
 });
 parser.on('end', function() {
 	async.parallel(tasks, function(err) {
@@ -43,7 +65,10 @@ function processDoc(el, cb) {
 	if (latest && latest.scripts && latest.scripts.test !== undefined) {
 		if (testSuite === false || latest.scripts.test.indexOf(testSuite) > -1) {
 			return process.nextTick(function () {
-				var s = slave.run(el.id, { reportResults: true });
+				var s = slave.run(el.id, {
+					reportResults: reportResults,
+					uninstallAfter: uninstallAfter
+				});
 				s.on('complete', function(win, reason) {
 					var r = '';
 					if (reason) r = '>' + reason.replace(/\n/g, ' ') + '<';

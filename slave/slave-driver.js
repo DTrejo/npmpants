@@ -3,6 +3,7 @@ var config = require("../config"),
 	npm = require('npm'),
 	spawn = require('child_process').spawn,
 	exec = require('child_process').exec,
+	path = require('path'),
 
 	Runner = require('./lib/runner'),
 	util = require('util'),
@@ -57,6 +58,8 @@ exports.run = function (module, opts) {
 	if (options.reportResults == undefined) {
 		options.reportResults = true;
 	} // else leave it alone.
+
+	options.uninstallAfter = options.uninstallAfter || false;
 
 	// create our runner even if npm isn't ready
 	var r = options.runner || new Runner();
@@ -121,9 +124,13 @@ exports.run = function (module, opts) {
 				});
 			}
 
-			// npm.commands.uninstall(['../slave/test_modules/node_modules/' + module], function(err) {
-			//	 console.log(arguments);
-			// });
+			if (options.uninstallAfter) {
+				var list = [ path.join(npmConfig.cwd, 'node_modules', module) ];
+				npm.commands.uninstall(list, function(err, data) {
+					if (err) console.log(err.stack);
+					if (data && data.length) console.log(module, 'npm uninstall:', data);
+				});
+			}
 		});
 		r.on('error', function (err) {
 			console.log('Something went wrong: ' + err);
