@@ -1,0 +1,22 @@
+{
+	"author": "npmpants",
+	"name": "crawler",
+	"version": "0.0.0",
+	"repository": {
+		"type": "git",
+		"url": "npmpants@npmpants.org:repos/npmpants/"
+	},
+	"main": "crawler.js",
+	"engines": {
+		"node": "~v0.4.12"
+	},
+	"dependencies": {
+		"argsparser": "0.0.6",
+		"semver": "1.0.10",
+		"JSONStream": "0.1.2",
+		"async": "0.1.12",
+		"request": "2.1.1"
+	},
+	"devDependencies": {},
+	"private": true
+}

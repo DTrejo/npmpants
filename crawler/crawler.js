@@ -1,48 +1,63 @@
 var args = require("argsparser").parse(),
-	npmRegistry = require("./npmRegistry"),
+	request = require('request'),
+	JSONStream = require('JSONStream'),
 	slave = require('../slave'),
-
-	testSuite = args["--suite"] ? args["--suite"] : false;
+	testSuite = args["--suite"] ? args["--suite"] : false,
+	semver = require('semver'),
+	async = require('async')
+;
 
 /**
- * Some magic function that takes the URL of a tarball. Should
- * download, extract, run tests, and whatnot.
- */
+	* Some magic function that takes the URL of a tarball. Should
+	* download, extract, run tests, and whatnot.
+	*/
 
-if(testSuite) {
+if (testSuite) {
 	console.log("Only running tests for " + testSuite);
 }
 
-function spoolPackage(package) {
-	if (!package.id || !package.doc.versions) {
-		return;
-	}
-	console.log("Spooling " + package.id);
-	var versions = Object.keys(package.doc.versions);
+var parser = JSONStream.parse(['rows', /./]),
+	req = request({
+		url: 'http://search.npmjs.org/api/_all_docs?include_docs=true&limit=100'
+	})
+;
+tasks = [];
+parser.on('data', function(data) {
+	tasks.push(async.apply(processDoc, data));
+	console.log('pushed', data.id);
+});
+parser.on('end', function() {
+	async.parallel(tasks, function(err) {
+		if (err) console.log(err.stack);
+		console.log('done running tests!', tasks.length);
+	});
+});
+req.pipe(parser);
 
-	// TODO may not actually be latest
-	var latest = package.doc.versions[versions.pop()];
+function processDoc(el, cb) {
+	if (!el.id || !el.doc.versions) {
+		return cb(null);
+	}
+	var latest = latestRelease(el.doc);
 
 	if (latest && latest.scripts && latest.scripts.test !== undefined) {
-		if(testSuite === false || latest.scripts.test.indexOf(testSuite) > -1) {
-			console.log("Spooling test for " + package.id + " " + latest.version);
-			process.nextTick(function () {
-				var s = slave.run(package.id);
+		if (testSuite === false || latest.scripts.test.indexOf(testSuite) > -1) {
+			return process.nextTick(function () {
+				var s = slave.run(el.id, { reportResults: false });
+				s.on('complete', function(win, reason) {
+					var r = '';
+					if (reason) r = '>' + reason.replace(/\n/g, ' ') + '<';
+					console.log(el.id + "@" + latest.version, win, r);
+					cb(null);
+				});
 			});
-		}
-	}
-}
-
-var interpretJSON = function (obj) {
-	var rows = obj.rows, package;
-	console.log("npmRegistry returned " + rows.length + " rows");
-	while(rows.length > 0) {
-		package = rows.splice(Math.round(Math.random() * (rows.length - 1)), 1)[0];
-		spoolPackage(package);
-	}
-	// obj.rows.forEach(function (el, i) {
-	//	spoolPackage(el);
-	// });
+		} else { return cb(null); }
+	} else { return cb(null); }
 };
 
-npmRegistry.on("load", interpretJSON);
+function latestRelease(pack) {
+	if (!pack || !pack.versions) return undefined;
+	var versions = Object.keys(pack.versions),
+		latestVersion = versions.sort(semver.rcompare).pop();
+	return pack.versions[latestVersion];
+};
