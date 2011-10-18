@@ -10,6 +10,7 @@ var args = require("argsparser").parse(),
 	uninstallAfter = args["--uninstall-after"] || false, // not sure if this works
 	limit = args['--limit'] || false,
 	reportResults = args['--reportResults'] || false
+	speed = args['--series'] == true ? 'series' : 'parallel';
 ;
 
 /**
@@ -30,6 +31,7 @@ if (uninstallAfter) {
 } else {
 	console.log('NOT uninstalling each package after testing');
 }
+console.log('Running tests in <', speed, '>');
 
 var parser = JSONStream.parse(['rows', /./]),
 	url = 'http://search.npmjs.org/api/_all_docs?include_docs=true';
@@ -49,7 +51,7 @@ parser.on('data', function(data) {
 	// console.log('pushed', data.id);
 });
 parser.on('end', function() {
-	async.parallel(tasks, function(err) {
+	async[speed](tasks, function(err) {
 		if (err) console.log(err.stack);
 		console.log('done running tests!', tasks.length);
 	});
