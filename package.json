@@ -7,9 +7,6 @@
 	"repository": {
 		"url": "https://github.com/nko2/hollaback"
 	},
-	"engines": {
-		"node": "~v0.4.9"
-	},
 	"dependencies": {
 		"colors": "0.5.0",
 		"cli": "*",
