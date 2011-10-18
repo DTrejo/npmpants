@@ -43,7 +43,7 @@ function processDoc(el, cb) {
 	if (latest && latest.scripts && latest.scripts.test !== undefined) {
 		if (testSuite === false || latest.scripts.test.indexOf(testSuite) > -1) {
 			return process.nextTick(function () {
-				var s = slave.run(el.id, { reportResults: false });
+				var s = slave.run(el.id, { reportResults: true });
 				s.on('complete', function(win, reason) {
 					var r = '';
 					if (reason) r = '>' + reason.replace(/\n/g, ' ') + '<';
