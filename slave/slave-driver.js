@@ -74,6 +74,9 @@ exports.run = function (module, opts) {
 	// ok, npm must be ready now, continue with the install
 	// install(here, module_name, cb);
 	npm.commands.install(npmConfig.cwd, module, function (err, data) {
+		// e.g. package requires a larger node version than current one
+		if (err) return r.emit('complete', false, err.message);
+
 		var version;
 		// TODO: bug hiding here where version stays undefined e.g. install taglib
 		if (Array.isArray(data) && Array.isArray(data[data.length - 1])) {
@@ -90,7 +93,6 @@ exports.run = function (module, opts) {
 			if (options.reportResults === true) {
 				console.log('saving to db. reportResults ==', options.reportResults);
 				db.get(module, function(err, doc) {
-					// console.log(doc);
 					if(err) {
 						doc = {};
 						doc.name = module;
@@ -127,12 +129,6 @@ exports.run = function (module, opts) {
 			console.log('Something went wrong: ' + err);
 		});
 
-		// if (err) {
-		//	 console.log('Failed to install package.');
-		//	 r.emit('complete', false, err.message);
-		//	 return;
-		// }
-
 		// all modules are installed locally to prevent external problems
 		var module_path = __dirname + '/test_modules/node_modules/' + module;
 
@@ -145,12 +141,16 @@ exports.run = function (module, opts) {
 			version = pack.version;
 		}
 
-		// we only care about modules that provide a test in package.json
-		if (!(pack.scripts && pack.scripts.test)) {
-			//throw new Error('pack needs to define scripts.test');
-			console.log('package needs to define scripts.test');
-			return;
-		}
+		// don't try to test things whose version is greater than on current system
+		// if (pack.engines) {
+		// 	if (semver.gt(process.version, pack.engines.node || '0')) {
+		// 		r.emit('complete', true, 'n/a: requires Node ' + version);
+		// 	}
+		// 	if (semver.gt(npm.version, pack.engines.npm || '0')) {
+		// 		r.emit('complete', true, 'n/a: requires npm ' + version);
+		// 	}
+		// }
+
 		if (pack.scripts && pack.scripts.test) {
 			// tell the runner to go to work
 			r.run(pack.scripts.test, module_path);
