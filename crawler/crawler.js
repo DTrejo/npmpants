@@ -4,6 +4,7 @@ var args = require("argsparser").parse(),
 	slave = require('../slave'),
 	semver = require('semver'),
 	async = require('async'),
+	util = require('util'),
 
 	// optional flags
 	testSuite = args["--suite"] || false,
@@ -48,14 +49,17 @@ var req = request({ url: url }),
 
 parser.on('data', function(data) {
 	tasks.push(async.apply(processDoc, data));
+	if (tasks.length % 10 == 0) util.print('.');
 	// console.log('pushed', data.id);
 });
 parser.on('end', function() {
+	console.log('\ndone fetching data from search.npmjs.org');
 	async[speed](tasks, function(err) {
 		if (err) console.log(err.stack);
 		console.log('done running tests!', tasks.length);
 	});
 });
+console.log('Each dot stands for 10 modules queued for execution');
 req.pipe(parser);
 
 function processDoc(el, cb) {
