@@ -5,7 +5,7 @@ var config = require("../config"),
 	exec = require('child_process').exec,
 	path = require('path'),
 
-	Handler = require('./lib/handlers/handler'),
+	Handler = require('./handler'),
 	util = require('util'),
 	cradle = require('cradle');
 
@@ -107,11 +107,13 @@ function run(module, opts) {
 		});
 
 		// all modules are installed locally to prevent external problems
-		var module_path = __dirname + '/test_modules/node_modules/' + module;
+		var module_path = path.join(
+			__dirname, 'test_modules', 'node_modules', module
+		);
 
 		// load the modules package.json
 		var pack = JSON.parse(
-			fs.readFileSync(module_path + '/package.json').toString()
+			fs.readFileSync(path.join(module_path, 'package.json')).toString()
 		);
 
 		if (version === undefined) {

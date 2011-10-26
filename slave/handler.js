@@ -5,20 +5,11 @@ var spawn = require('child_process').spawn,
 	_ = require('underscore'),
 	globSync = require('glob').globSync;
 
-//
-// should be a drop-in for generic.js
-//
 module.exports = handler;
 function handler() {
 	var ee = new events.EventEmitter;
 
 	// just tack on whatever we want to export
-	// handler.run = run
-
-	// options = detectAndUseSuite(options);
-
-	// start things
-	// run(options, workingDir);
 	ee.run = function(options, workingDir) {
 		run(options, workingDir, ee);
 	};
@@ -124,22 +115,22 @@ function processCmdLine(cmd, run_path) {
 function detectAndUseSuite(options) {
 	// SO much better than a switch statement!
 	var suite = {
-		'expresso': path.join( __dirname, '..', '..',
+		'expresso': path.join( __dirname,
 			'expresso-noJScov', 'bin', 'expresso'),
 
-		'jasmine-node': path.join( __dirname, '..', '..',
+		'jasmine-node': path.join( __dirname,
 			'node_modules', 'jasmine-node', 'bin', 'jasmine-node'),
 
-		'nodeunit': path.join( __dirname, '..', '..',
+		'nodeunit': path.join( __dirname,
 			'node_modules', 'nodeunit', 'bin', 'nodeunit'),
 
-		'tap': path.join( __dirname, '..', '..',
+		'tap': path.join( __dirname,
 			'node_modules', 'tap', 'bin', 'tap.js'),
 
-		'vows': path.join(__dirname, '..', '..',
+		'vows': path.join(__dirname,
 			'node_modules', 'vows', 'bin', 'vows'),
 
-		'whiskey': path.join(__dirname, '..', '..',
+		'whiskey': path.join(__dirname,
 			'node_modules', 'whiskey', 'bin', 'whiskey')
 	};
 	if (suite[options.cmd]) {

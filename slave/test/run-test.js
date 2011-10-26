@@ -1,5 +1,5 @@
 var fs = require("fs"),
-	slave = require("./slave-driver");
+	slave = require("../slave-driver");
 require("colors");
 
 var module = process.argv[2] || "test";

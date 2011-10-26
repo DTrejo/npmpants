@@ -1,6 +1,6 @@
 var fs = require('fs')
 	, async = require('async')
-	, slave = require('./slave-driver')
+	, slave = require('../slave-driver')
 	, npm = require('npm')
 	, path = require('path')
 
@@ -99,7 +99,7 @@ slave.ready(function(run) {
 function testViaNpm(callback) {
 	var npmConfig = {
 			loglevel: 'silent',
-			cwd: path.join(__dirname, 'test_modules', 'node_modules')
+			cwd: path.join(__dirname, '..', 'test_modules', 'node_modules')
 		}
 	, cliTasks = [];
 
