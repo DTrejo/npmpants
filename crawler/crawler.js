@@ -20,19 +20,23 @@ var args = require("argsparser").parse(),
 	*/
 
 if (testSuite) {
-	console.log("YES only running tests for " + testSuite);
+	console.log("YES --suite only running tests for " + testSuite);
 }
 if (reportResults) {
-	console.log('YES reporting results to couchDB.');
+	console.log('YES --reportResults to couchDB.');
 } else {
-	console.log('NOT reporting results to couchDB.');
+	console.log('NOT --reportResults to couchDB.');
 }
 if (uninstallAfter) {
-	console.log('YES uninstalling each package after testing');
+	console.log('YES --uninstall-after each package is tested');
 } else {
-	console.log('NOT uninstalling each package after testing');
+	console.log('NOT --uninstall-after each package is tested');
 }
-console.log('Running tests in <', speed, '>');
+if (speed == 'series') {
+	console.log('YES --series tests run in <', speed, '>');
+} else {
+	console.log('NO --series tests run in <', speed, '>');
+}
 
 var parser = JSONStream.parse(['rows', /./]),
 	url = 'http://search.npmjs.org/api/_all_docs?include_docs=true';
