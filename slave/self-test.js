@@ -45,54 +45,55 @@ var fs = require('fs')
 require('colors');
 
 console.log('Running with NodeJS: ' + process.version);
+slave.ready(function(run) {
+	modules.forEach(function(module) {
+		tasks.push(function(cb) {
+			var s = run(module, { reportResults: false })
+				, out = '', err = '';
 
-modules.forEach(function(module) {
-	tasks.push(function(cb) {
-		var s = slave.run(module, { reportResults: false })
-			, out = '', err = '';
+			s.on('out', function(data) {
+				out += data;
+			});
 
-		s.on('out', function(data) {
-			out += data;
-		});
+			s.on('err', function(err, data) {
+				err += data;
+			});
 
-		s.on('err', function(err, data) {
-			err += data;
-		});
-
-		s.on('complete', function(code, sig) {
-			fs.writeFile('./logs/' + module + '.out.log', out);
-			fs.writeFile('./logs/' + module + '.err.log', err);
-			// console.log('[test.js:out]:\n%s'.green, out);
-			// console.log('[test.js:err]:\n%s'.red, err);
-			// console.log('test completed with code:', code, 'sig:', sig);
-			cb(null, { name: module, passed: code, err: err, out: out });
+			s.on('complete', function(code, sig) {
+				fs.writeFile('./logs/' + module + '.out.log', out);
+				fs.writeFile('./logs/' + module + '.err.log', err);
+				// console.log('[test.js:out]:\n%s'.green, out);
+				// console.log('[test.js:err]:\n%s'.red, err);
+				// console.log('test completed with code:', code, 'sig:', sig);
+				cb(null, { name: module, passed: code, err: err, out: out });
+			});
 		});
 	});
-});
 
-async.parallel(tasks, function(err, results) {
-	if (err) throw err;
+	async.parallel(tasks, function(err, results) {
+		if (err) throw err;
 
-	testViaNpm(printResults);
-	function printResults(err) {
-		console.log();
-		console.log('===pants runner===');
-		var win = true;
-		results.forEach(function(r) {
-			// only print if it failed!
-			if (r.passed === false) {
-				console.log(r.name, 'passed?', r.passed);
-				console.log('stdout:', r.out);
-				console.log('stderr:', r.err);
-				win = false;
+		testViaNpm(printResults);
+		function printResults(err) {
+			console.log();
+			console.log('===pants runner===');
+			var win = true;
+			results.forEach(function(r) {
+				// only print if it failed!
+				if (r.passed === false) {
+					console.log(r.name, 'passed?', r.passed);
+					console.log('stdout:', r.out);
+					console.log('stderr:', r.err);
+					win = false;
+				}
+			});
+			if (win) {
+				console.log('Success! All modules passed. Full list:');
+				console.log(modules.join(', '));
 			}
-		});
-		if (win) {
-			console.log('Success! All modules passed. Full list:');
-			console.log(modules.join(', '));
+			process.exit(0);
 		}
-		process.exit(0);
-	}
+	});
 });
 
 function testViaNpm(callback) {
@@ -128,4 +129,4 @@ function testViaNpm(callback) {
 			callback(null, results);
 		});
 	});
-}
+};
