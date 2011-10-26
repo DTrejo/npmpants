@@ -5,7 +5,7 @@ var config = require("../config"),
 	exec = require('child_process').exec,
 	path = require('path'),
 
-	Runner = require('./lib/runner'),
+	Handler = require('./lib/handlers/handler'),
 	util = require('util'),
 	cradle = require('cradle');
 
@@ -19,8 +19,6 @@ var connection = new cradle.Connection(config.couchHost, config.couchPort, {
 
 var db = connection.database('results');
 
-var queue = [], ready = false, getUname;
-
 var npmConfig = {
 	loglevel: 'silent',
 	cwd: __dirname + '/test_modules'
@@ -28,32 +26,17 @@ var npmConfig = {
 
 // load needs to be call before any npm.commands can be run
 // but run needs to be call externally so we cannot do install from with in load
-npm.load(npmConfig, function () {
-	getUname(function (err, uname) {
-		exports.UNAME = uname;
-
-		// tell slaveRunner.run we're ready
-		ready = true;
-		// then run out the que
-		queue.forEach(function (module) {
-			exports.run(module[0], module[1]);
+exports.ready = ready;
+function ready(cb) {
+	npm.load(npmConfig, function () {
+		getUname(function (err, uname) {
+			exports.UNAME = uname;
+			cb(run);
 		});
 	});
-});
-
-var runCount = 0, spool = [];
-
-exports.spool = function (module) {
-	if (module !== undefined) {
-		spool.push(module);
-	}
-	while (spool.length && runCount < 10) {
-		runCount++;
-		exports.run(spool.shift());
-	}
 };
 
-exports.run = function (module, opts) {
+function run(module, opts) {
 	var options = opts || {};
 	if (options.reportResults == undefined) {
 		options.reportResults = true;
@@ -61,19 +44,7 @@ exports.run = function (module, opts) {
 
 	options.uninstallAfter = options.uninstallAfter || false;
 
-	// create our runner even if npm isn't ready
-	var r;
-	if (!ready) {
-		// we're not ready so add the module and the new runner to the queue
-		options.runner = new Runner();
-		queue.push([ module, options ]);
-
-		// return runner so other components can subscribe to completed events
-		return options.runner;
-	} else {
-		r = options.runner || new Runner();
-	}
-	// console.log('Installing ' + module);
+	var r = new Handler();
 
 	// ok, npm must be ready now, continue with the install
 	// install(here, module_name, cb);
@@ -90,9 +61,8 @@ exports.run = function (module, opts) {
 		}
 
 		r.on('complete', function (success, message) {
-			runCount--;
-			// console.log('complete>', module, success, message, exports.UNAME);
-			// console.log("");
+			// console.log('complete>', module, success, message
+			// , exports.UNAME);
 
 			if (options.reportResults === true) {
 				console.log('saving to db. reportResults ==', options.reportResults);
@@ -118,9 +88,8 @@ exports.run = function (module, opts) {
 					db.save(module, doc, function(err, res) {
 						// console.log(doc.tests[version]);
 
-						if(err) console.log(err);
+						if (err) console.log(err);
 						// console.log(res);
-						exports.spool();
 					});
 				});
 			}
@@ -156,7 +125,7 @@ exports.run = function (module, opts) {
 		// 	}
 		// 	if (semver.gt(npm.version, pack.engines.npm || '0')) {
 		// 		r.emit('complete', true, 'n/a: requires npm ' + version);
-		// 	}
+		// }
 		// }
 
 		if (pack.scripts && pack.scripts.test) {
@@ -173,7 +142,7 @@ exports.run = function (module, opts) {
 // get's the system's uname, e.g.
 // SunOS 5.11 i86pc
 // Darwin 10.7.0 i386 // actually im on 10.6, but whateves.
-getUname = function (cb) {
+function getUname(cb) {
 	exec('uname -mrs', function (error, stdout, stderr) {
 		if (error !== null) {
 			cb(error, stdout);
