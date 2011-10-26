@@ -7,12 +7,6 @@ var cp = require('child_process'),
 
 function Runner(cmd, run_path) {
 	events.EventEmitter.call(this);
-
-	// if npm.load is not done yet the Runner gets queued
-	// once load is done Runner.run will be called directly
-	// from the slave driver
-	// console.log(process.env.PATH);
-	if (cmd) this.run(cmd, run_path);
 }
 
 module.exports = Runner;
@@ -21,6 +15,7 @@ util.inherits(Runner, events.EventEmitter);
 
 var RunnerPrototype = {
 	run: function (cmd, run_path) {
+		// console.log(cmd); console.log(run_path);
 		// this is probably the only step really needed for the runner.
 		// everything else can be part of the GenericHandler super-class
 		var handler = this.createTestHandler(cmd, run_path);
@@ -37,12 +32,9 @@ var RunnerPrototype = {
 		var Handler;
 		try {
 			Handler = require('./handlers/' + commandLine.name);
-			// console.log('created new "' + commandLine.name + '" test handler');
 		} catch (e) {
 			Handler = require('./handlers/generic');
-			// console.log('created new "generic" test handler');
 		}
-
 		return new Handler(commandLine, run_path);
 	},
 

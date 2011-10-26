@@ -3,6 +3,7 @@ var spawn = require('child_process').spawn,
 	path = require('path'),
 	util = require('util'),
 	_ = require('underscore'),
+	globSync = require('glob').globSync,
 
 	// the event emitter that we return to the caller
 	ee = undefined;
@@ -50,7 +51,7 @@ function detectAndUseSuite(options) {
 	suite[options.cmd] && options.cmd = suite[options.cmd];
 
 	var args = {
-		'vows': '--json';
+		'vows': '--json'
 	}
 	args[options.cmd] && options.args.push(args[options.cmd]);
 

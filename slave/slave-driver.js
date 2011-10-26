@@ -62,15 +62,16 @@ exports.run = function (module, opts) {
 	options.uninstallAfter = options.uninstallAfter || false;
 
 	// create our runner even if npm isn't ready
-	var r = options.runner || new Runner();
-
+	var r;
 	if (!ready) {
-		// we're not ready so add the module and the new runner to the que
-		options.runner = r;
+		// we're not ready so add the module and the new runner to the queue
+		options.runner = new Runner();
 		queue.push([ module, options ]);
 
-		// return the runner so other components can subscribe to completed events
-		return r;
+		// return runner so other components can subscribe to completed events
+		return options.runner;
+	} else {
+		r = options.runner || new Runner();
 	}
 	// console.log('Installing ' + module);
 
