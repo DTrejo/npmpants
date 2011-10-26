@@ -1,13 +1,8 @@
-var addToQueue;
-var server = require('http').createServer(function (req, res) {
-	if (req.url === '/favicon.ico') {
-		return;
-	}
-	addToQueue(req.url.substr(1));
-	res.end('');
-});
-server.listen(11235);
+var slaveDriver = require('./slave-driver');
 
-addToQueue = function (name) {
-	require('./').run(name);
-};
+require('http').createServer(function (req, res) {
+	if (req.url !== '/favicon.ico') {
+		slaveDriver.run(req.url.substr(1));
+	}
+	res.end('');
+}).listen(11235);
