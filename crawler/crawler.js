@@ -47,26 +47,27 @@ if (limit) {
 } else {
 	console.log('No --limit specified; fetching ALL docs from npm\'s couchdb!');
 }
+slave.ready(function(run) {
+	var req = request({ url: url }),
+		tasks = [];
 
-var req = request({ url: url }),
-	tasks = [];
-
-parser.on('data', function(data) {
-	tasks.push(async.apply(processDoc, data));
-	if (tasks.length % 10 == 0) util.print('.');
-	// console.log('pushed', data.id);
-});
-parser.on('end', function() {
-	console.log('\ndone fetching data from search.npmjs.org');
-	async[speed](tasks, function(err) {
-		if (err) console.log(err.stack);
-		console.log('done running tests!', tasks.length);
+	parser.on('data', function(data) {
+		tasks.push(async.apply(processDoc, run, data));
+		if (tasks.length % 10 == 0) util.print('.');
+		// console.log('pushed', data.id);
 	});
+	parser.on('end', function() {
+		console.log('\ndone fetching data from search.npmjs.org');
+		async[speed](tasks, function(err) {
+			if (err) console.log(err.stack);
+			console.log('done running tests!', tasks.length);
+		});
+	});
+	console.log('Each dot stands for 10 modules queued for execution');
+	req.pipe(parser);
 });
-console.log('Each dot stands for 10 modules queued for execution');
-req.pipe(parser);
 
-function processDoc(el, cb) {
+function processDoc(run, el, cb) {
 	if (!el.id || !el.doc.versions) {
 		return cb(null);
 	}
@@ -75,7 +76,7 @@ function processDoc(el, cb) {
 	if (latest && latest.scripts && latest.scripts.test !== undefined) {
 		if (testSuite === false || latest.scripts.test.indexOf(testSuite) > -1) {
 			return process.nextTick(function () {
-				var s = slave.run(el.id, {
+				var s = run(el.id, {
 					reportResults: reportResults,
 					uninstallAfter: uninstallAfter
 				});
