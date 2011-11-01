@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 var args = require("argsparser").parse(),
 	request = require('request'),
 	JSONStream = require('JSONStream'),
@@ -8,11 +9,10 @@ var args = require("argsparser").parse(),
 
 	// optional flags
 	testSuite = args["--suite"] || false,
-	uninstallAfter = args["--uninstall-after"] || false, // not sure if this works
+	uninstallAfter = args["--uninstall-after"] || false,
 	limit = args['--limit'] || false,
-	reportResults = args['--reportResults'] || false
+	reportResults = args['--report-results'] || false,
 	speed = args['--series'] == true ? 'series' : 'parallel';
-;
 
 /**
 	* Some magic function that takes the URL of a tarball. Should
@@ -23,9 +23,9 @@ if (testSuite) {
 	console.log("YES --suite only running tests for " + testSuite);
 }
 if (reportResults) {
-	console.log('YES --reportResults to couchDB.');
+	console.log('YES --report-results to couchDB.');
 } else {
-	console.log('NOT --reportResults to couchDB.');
+	console.log('NOT --report-results to couchDB.');
 }
 if (uninstallAfter) {
 	console.log('YES --uninstall-after each package is tested');
