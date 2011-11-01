@@ -51,13 +51,14 @@ function run(options, workingDir, ee) {
 	function killProcess() {
 		try {
 			if (child) {
+				// TODO: make a note that this was killed for taking too long to run
+				// (15seconds)
 				child.kill('SIGTERM');
 				child.kill('SIGINT');
 			}
 		} catch (e) {
 			complete(false, 'Failed to kill process: ' + e.message + '\n'
 				+ e.stack);
-			// now remove all listeners?
 		}
 	};
 	function complete(win, message) {

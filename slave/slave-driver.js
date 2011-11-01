@@ -86,10 +86,7 @@ function run(module, opts) {
 					};
 
 					db.save(module, doc, function(err, res) {
-						// console.log(doc.tests[version]);
-
 						if (err) console.log(err);
-						// console.log(res);
 					});
 				});
 			}
