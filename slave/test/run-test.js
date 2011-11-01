@@ -29,12 +29,12 @@ slave.ready(function(run) {
 	console.log('Running with NodeJS: ' + process.version);
 	var out = '', err = '';
 
-	s.on('out', function(data) {
+	s.on('stdout', function(data) {
 		out += data;
 		console.log('[test.js:out]:\n'.green + data);
 	});
 
-	s.on('err', function(err, data) {
+	s.on('stderr', function(err, data) {
 		err += data;
 		console.log('[test.js:err]:\n'.red + err, data);
 	});
