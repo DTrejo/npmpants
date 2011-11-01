@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 var fs = require('fs')
 	, async = require('async')
 	, slave = require('../slave-driver')
