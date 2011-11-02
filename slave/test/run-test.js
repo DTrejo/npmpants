@@ -23,25 +23,17 @@ if (uninstallAfter) {
 slave.ready(function(run) {
 	var s = run(module, {
 		reportResults: reportResults,
-		uninstallAfter:uninstallAfter
+		uninstallAfter: uninstallAfter
 	});
 
 	console.log('Running with NodeJS: ' + process.version);
-	var out = '', err = '';
 
-	s.on('stdout', function(data) {
-		out += data;
-		console.log('[test.js:out]:\n'.green + data);
-	});
-
-	s.on('stderr', function(err, data) {
-		err += data;
-		console.log('[test.js:err]:\n'.red + err, data);
-	});
-
-	s.on('complete', function(code, sig) {
-		fs.writeFile('./logs/' + module + '.out.log', out);
-		fs.writeFile('./logs/' + module + '.err.log', err);
-		console.log('test completed with code:', code, 'sig:', sig);
+	s.on('complete', function(err, result) {
+		fs.writeFile('./logs/' + module + '.out.log', result.stdout);
+		fs.writeFile('./logs/' + module + '.err.log', result.stderr);
+		console.log(result.stdout);
+		console.log(result.stderr);
+		console.log('test completed with code:', result.win, 'message:',
+			result.message);
 	});
 });

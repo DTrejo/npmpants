@@ -28,17 +28,21 @@ function run(options, workingDir, ee) {
 
 	freshenTimer();
 
+	var stdout = '',
+		stderr = '';
 	child.stdout.on('data', function(data) {
 		freshenTimer();
+		stdout += data;
 		ee.emit('stdout', data);
 	});
 	child.stderr.on('data', function(data) {
 		freshenTimer();
+		stderr += data;
 		ee.emit('stderr', data);
 	});
 	child.on('exit', function(code, signal) {
 		clearTimeout(timeout);
-		complete(code === 0, signal);
+		complete(code === 0, signal); // TODO: this signal isn't ever here?
 	});
 
 	function freshenTimer() {
@@ -64,16 +68,30 @@ function run(options, workingDir, ee) {
 	function complete(win, message) {
 		// check what suite it is and handle that differently, e.g. include
 		// how many tests passed, etc, based on stdout, or something.
-		ee.emit('complete', win, message);
+
+		processOutput(options, stdout, stderr, function(err, info) {
+			ee.emit('complete', err, {
+				win: info.win || win,
+				message: message,
+				stdout: stdout,
+				stderr: stderr,
+
+				// these will be undefined, thus not included if the test suite does not
+				// report these things in machine-readable manner
+				passed: info.passed,
+				total: info.total
+			});
+		});
 	}
 };
 
 function processCmdLine(cmd, run_path) {
 	var commandLine = {
-		args: [],
-		envs: {},
-		name: ''
-	}, env;
+			args: [],
+			envs: { 'TAP': true }, // is this correct?
+			name: ''
+		},
+		env;
 	cmd = cmd.split(' ');
 
 	commandLine.name = cmd[0];
@@ -145,6 +163,40 @@ function detectAndUseSuite(options) {
 
 	return options;
 };
+
+function processOutput(options, stdout, stderr, cb) {
+		// each parser calls back with
+		// { win: true/false, passed: #passed, total: #totaltests }
+		parsers = {
+			'tap': function(cb) {
+				// via https://gist.github.com/1331671
+				var fs = require('fs');
+				var TapConsumer = require('tap-consumer');
+				var tc = new TapConsumer;
+				tc.on('end', function(err, total, passed) {
+					if (err) console.log(err.stack);
+					// total is the total number of passed tests
+					// passed is an array of ids of the tests that passed
+					cb(err, {
+						win: passed.length === total,
+						passed: passed.length,
+						total: total
+					});
+				});
+				tc.write(stdout);
+				tc.end();
+			},
+			'vows': function(cb) {
+				cb(null, {});
+			}
+			// TODO: more output parsers!
+		};
+	if (parsers[options.name]) {
+		parsers[options.name](cb);
+	} else {
+		cb(null, {});
+	}
+}
 
 if (require.main === module) {
 	var opts = {

@@ -19,6 +19,7 @@
 		"jasmine-node": "1.0.6",
 		"nodeunit": "0.5.5",
 		"tap":"0.0.9",
+		"tap-consumer": "0.0.1",
 		"vows" : "0.5.11",
 		"whiskey": "0.4.2"
 	},

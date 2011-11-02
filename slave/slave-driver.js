@@ -60,28 +60,30 @@ function run(module, opts) {
 			// console.log('version', version);
 		}
 
-		r.on('complete', function (success, message) {
-			// console.log('complete>', module, success, message
-			// , exports.UNAME);
+		r.on('complete', function (err, info) {
+			if (err) console.log(err.stack);
 
 			if (options.reportResults === true) {
 				console.log('saving to db. reportResults ==', options.reportResults);
+				// TODO: add additional fields to DB "schema", to include
+				// info.win == true/false, info.passed === #testspassed,
+				// info.total === #totalnumberoftests
 				db.get(module, function(err, doc) {
-					if(err) {
+					if (err) {
 						doc = {};
 						doc.name = module;
 						doc.tests = {};
 						message = err;
 					}
 
-					if(!doc.tests[version])
+					if (!doc.tests[version])
 						doc.tests[version] = {};
 
-					if(!doc.tests[version][exports.UNAME])
+					if (!doc.tests[version][exports.UNAME])
 						doc.tests[version][exports.UNAME] = {};
 
 					doc.tests[version][exports.UNAME][NODE_VERSION] = {
-						passed: success,
+						passed: info.win, // TODO: change this
 						message: message
 					};
 
