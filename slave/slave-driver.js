@@ -61,7 +61,7 @@ function run(module, opts) {
 		}
 
 		r.on('complete', function (err, info) {
-			if (err) console.log(err.stack);
+			// if (err) console.log(err.stack);
 
 			if (options.reportResults === true) {
 				console.log('saving to db. reportResults ==', options.reportResults);

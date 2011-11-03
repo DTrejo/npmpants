@@ -190,13 +190,19 @@ function processOutput(options, stdout, stderr, cb) {
 			},
 			'vows': function(cb) {
 				var json = stdout.substr(stdout.trim().lastIndexOf('\n'));
-				var data = JSON.parse(json)[1];
+				var data;
+				try {
+					// generally happens when the module left sth out of package.json
+					data = JSON.parse(json)[1];
+				} catch (err) {
+					return cb(err, {});
+				}
 				var info = {
 					win: data.honored === data.total,
 					passed: data.honored,
 					total: data.total
 				};
-				cb(null, info);
+				return cb(null, info);
 			}
 			// TODO: more output parsers!
 		};
