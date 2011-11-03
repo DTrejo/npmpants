@@ -98,6 +98,9 @@ function run(module, opts) {
 				npm.commands.uninstall(list, function(err, data) {
 					if (err) console.log(err.stack);
 					if (data && data.length) console.log(module, 'npm uninstall:', data);
+					npm.commands.cache.clean([ module ], function(err) {
+						if (err) console.log(err.stack);
+					});
 				});
 			}
 		});
