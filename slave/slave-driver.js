@@ -82,9 +82,10 @@ function run(module, opts) {
 					if (!doc.tests[version][exports.UNAME])
 						doc.tests[version][exports.UNAME] = {};
 
+					// TODO: change this to store more info.
 					doc.tests[version][exports.UNAME][NODE_VERSION] = {
-						passed: info.win, // TODO: change this
-						message: message
+						passed: info.win,
+						message: info.message
 					};
 
 					db.save(module, doc, function(err, res) {
