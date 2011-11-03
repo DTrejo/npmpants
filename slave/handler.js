@@ -20,6 +20,7 @@ function run(options, workingDir, ee) {
 	options = processCmdLine(options, workingDir);
 	options = detectAndUseSuite(options);
 	var env = _.extend(process.env, options.envs);
+	// console.log('options.args',options.args);
 	var child = spawn(options.cmd, options.args, {
 		cwd: workingDir,
 		env: env
@@ -159,7 +160,7 @@ function detectAndUseSuite(options) {
 	var args = {
 		'vows': '--json'
 	};
-	args[options.cmd] && options.args.push(args[options.cmd]);
+	args[options.name] && options.args.push(args[options.name]);
 
 	return options;
 };
@@ -177,17 +178,25 @@ function processOutput(options, stdout, stderr, cb) {
 					if (err) console.log(err.stack);
 					// total is the total number of passed tests
 					// passed is an array of ids of the tests that passed
-					cb(err, {
+					var info = {
 						win: passed.length === total,
 						passed: passed.length,
 						total: total
-					});
+					};
+					cb(err, info);
 				});
 				tc.write(stdout);
 				tc.end();
 			},
 			'vows': function(cb) {
-				cb(null, {});
+				var json = stdout.substr(stdout.trim().lastIndexOf('\n'));
+				var data = JSON.parse(json)[1];
+				var info = {
+					win: data.honored === data.total,
+					passed: data.honored,
+					total: data.total
+				};
+				cb(null, info);
 			}
 			// TODO: more output parsers!
 		};

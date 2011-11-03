@@ -40,7 +40,7 @@ var fs = require('fs')
 		]
 
 	// for faster testing
-	// , modules = [ 'semver' ]
+	// , modules = [ 'date-utils' ]
 	, tasks = [];
 
 require('colors');
