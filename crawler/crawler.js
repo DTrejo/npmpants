@@ -80,10 +80,10 @@ function processDoc(run, el, cb) {
 					reportResults: reportResults,
 					uninstallAfter: uninstallAfter
 				});
-				s.on('complete', function(win, reason) {
+				s.on('complete', function(err, info) {
 					var r = '';
-					if (reason) r = '>' + reason.replace(/\n/g, ' ') + '<';
-					console.log(el.id + "@" + latest.version, win, r);
+					if (info.message) r = '>' + info.message.replace(/\n/g, ' ') + '<';
+					console.log(el.id + "@" + latest.version, info.win, r);
 					cb(null);
 				});
 			});
