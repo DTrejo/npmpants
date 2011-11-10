@@ -69,6 +69,37 @@ Make sure you did step 2 of the install.
 
     NODE_PATH="path/to/cradle:${NODE_PATH}"
 
+Running all the components!
+===
+
+The **crawler**, which downloads package listings from search.npmjs.org, tests
+each package if possible, and uploads the results to our own couchdb.
+
+    ./crawler.js # add some options
+
+
+The **webserver**:
+
+    node server.js
+
+More info on the webserver:
+
+  - displays test results to users
+  - subscribes to the just-published packages feed from search.npmjs.org
+    - tells slave/server.js to test that package
+    - tells to homepage to show off this recently published module
+  - subscribes to the just-tested feed from our own couchDB
+    - tells to homepage to show off this recently tested module
+
+The **slave server**, which takes get requests and dispatches tests to be run:
+
+    slave/server.js
+
+The **slave test runner** has it's own tests, to make sure your changes don't
+screw everything up:
+
+    ./slave/test/self-test.js
+
 Coding style
 ===
 - comma last
