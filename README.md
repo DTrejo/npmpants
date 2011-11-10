@@ -1,10 +1,31 @@
 Warnings
 ===
 - npmpants is not yet launched. It is not 100% working.
+- not all tests are correctly reported in the web UI (need to wipe DB & retest)
 - does not yet support node v0.6.0
 - the crawler takes a lot of trust to run.
 - the autocomplete search box does not auto-update with newly published modules
+- the templating system isn't all there yet. May make sense to switch to plate.
+- github login & subscriptions to packages breaking is not yet written
 - and other things that I have yet to transfer to this README.
+
+What you can do to help :)
+===
+- send programmatic pull request to all repos that do not have a scripts hash
+  with a test hash and a command inside it to all module authors.
+- link to handy package-related links, e.g. nipster
+  (http://eirikb.github.com/nipster/), and alldocs page for node. also add a
+  fork ribbon at the top (need to make a container div now)
+- do some testing on windows / support it.
+- prettier design/layout for the site
+- pull request to npm so that npat results are sent to us. (will need to plan
+  how that looks & work semi-closely with isaac on this)
+- remote databases that are tested against. add some ENV property saying that we
+  are testing their module? /cc dscape when this is done?
+- Things with make files or node-waf default to yellow / basically anything
+  using generic handler gets a yellow. Timeouts are failures, sorry!
+- better reporting of failures and exact test output to the UI, so people can
+  see what went wrong
 
 npmpants Installation
 ===
