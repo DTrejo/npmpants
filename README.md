@@ -11,6 +11,7 @@ Warnings
 
 What you can do to help :)
 ===
+- if you're lost on what to help with, email <http://github.com/DTrejo>
 - send programmatic pull request to all repos that do not have a scripts hash
   with a test hash and a command inside it to all module authors.
 - link to handy package-related links, e.g. nipster
