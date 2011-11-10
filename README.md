@@ -44,13 +44,13 @@ npmpants Installation
     # slave setup
     pushd slave ; npm install ; popd
 
-2) Also, put the correct information into `config.js`
+2) Put the correct information into `config.js`. Sample:
+[`./config.js.example`](https://github.com/DTrejo/npmpants/blob/master/config.js.example)
 
-Write a ./config.js with your github credentials. Or copy it from the server,
-which is easiest. The idea is that we don't want that information to be
-public. If you're doing work on the open source project, contact <http://github.com/dtrejo> for this information :)
-
-Sample `config.js` can be seen in `./config.js.example`.
+Write a `./config.js` with your github credentials. Or copy it from the server,
+which is easiest. The idea is that we don't want that information to be public.
+If you're doing work on the open source project, contact
+<http://github.com/dtrejo> for this information :)
 
 Troubleshooting
 ===
