@@ -1,3 +1,7 @@
+Hosting is generously provided by [Morgan Allen](http://morglog.org/)
+([@captain_morgan](https://twitter.com/captain_morgan/)), not to mention
+his hard work on many parts of the code base. Morgan rocks :)
+
 Warnings
 ===
 - npmpants is not yet launched. It is not 100% working.
