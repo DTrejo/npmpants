@@ -6,7 +6,6 @@ Warnings
 ===
 - npmpants is not yet launched. It is not 100% working.
 - not all tests are correctly reported in the web UI (need to wipe DB & retest)
-- does not yet support node v0.6.0
 - the crawler takes a lot of trust to run.
 - the autocomplete search box does not auto-update with newly published modules
 - the templating system isn't all there yet. May make sense to switch to plate.

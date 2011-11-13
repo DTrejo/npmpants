@@ -83,6 +83,7 @@ function runWithRange(run) {
 
 function test(run, o, cb) {
 	var parser = JSONStream.parse(['rows', /./]);
+	o = o || {};
 	if (o.start) {
 		// get the rest of things when on the 'z'
 		if (o.start !== 'z') o.end = '&endkey=' + encodeURIComponent('"'+o.end+'"');

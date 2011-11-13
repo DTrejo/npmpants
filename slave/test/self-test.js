@@ -14,7 +14,7 @@ var fs = require('fs')
 		, 'dnode-protocol' // iffy
 
 		// vows
-		, 'date-utils'
+		// , 'date-utils' broken b/c of time zone change in core?
 
 		// tap
 		, 'semver'
@@ -36,7 +36,7 @@ var fs = require('fs')
 		// none really that don't do silly things in their test command.
 
 		// jasmine
-		, 'jquery-tmpl-jst'
+		// , 'jquery-tmpl-jst' // can't use b/c it needs require.paths.
 		]
 
 	// for faster testing

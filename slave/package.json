@@ -11,18 +11,18 @@
 		"node": "~v0.4.9"
 	},
 	"dependencies": {
-		"cradle": "*",
+		"cradle": "https://github.com/cloudhead/cradle/tarball/master",
 		"underscore": "1.1.7",
 		"glob": "2.0.8",
 		"argsparser":"0.0.6",
 
-		"npm": "1.0.27",
-		"jasmine-node": "1.0.6",
-		"nodeunit": "0.5.5",
-		"tap":"0.0.9",
+		"npm": "1.0.105",
+		"jasmine-node": "1.0.12",
+		"nodeunit": "0.6.2",
+		"tap":"0.0.13",
 		"tap-consumer": "0.0.1",
-		"vows" : "0.5.11",
-		"whiskey": "0.4.2"
+		"vows" : "0.5.13",
+		"whiskey": "0.5.1"
 	},
 	"devDependencies": {
 		"colors": "0.5.0",
