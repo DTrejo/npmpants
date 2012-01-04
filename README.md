@@ -5,13 +5,6 @@ his hard work on many parts of the code base. Morgan rocks :)
 Warnings
 ===
 - npmpants is not yet launched. It is not 100% working.
-- not all tests are correctly reported in the web UI (need to wipe DB & retest)
-- the crawler takes a lot of trust to run.
-- the autocomplete search box does not auto-update with newly published modules
-- the templating system isn't all there yet. May make sense to switch to plate.
-- github login & subscriptions to packages breaking is not yet written
-- have good SEO.
-- and other things that I have yet to transfer to this README.
 
 What you can do to help :)
 ===
@@ -31,6 +24,14 @@ What you can do to help :)
   using generic handler gets a yellow. Timeouts are failures, sorry!
 - better reporting of failures and exact test output to the UI, so people can
   see what went wrong
+- github login & subscriptions to packages breaking
+- have good SEO
+- need to switch templating system to plate.
+- the autocomplete search box does not auto-update with newly published modules
+- not all tests are correctly reported in the web UI (need to wipe DB & retest)
+- the crawler takes a lot of trust to run. would be great if test running could
+  be outsourced to travis CI or something.
+- check all node_modules into version control since this is a webapp.
 
 npmpants Installation
 ===
@@ -105,7 +106,7 @@ screw everything up:
 
 Coding style
 ===
-- comma last
-- tabs
-- this may change soon to be in sync with npm's coding style. This isn't decided
-  yet, however.
+- comma first
+- no semicolons (please delete as you come across them)
+- exactly the same as npm's coding style. please correct where you come across
+  deviations. Thank you.
