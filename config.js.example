@@ -1,10 +1,10 @@
 module.exports = {
-		ghClientId: "ask github.com/dtrejo for this info",
-		ghSecret: "ask github.com/dtrejo for this info",
-		ghAuthUrl: "https://github.com/login/oauth/authorize",
-		ghTokenUrl: "https://github.com/login/oauth/access_token",
-		couchHost: "localhost",
-		couchPort: 5984,
-		couchUser: "ask github.com/dtrejo for this info",
-		couchPass: "ask github.com/dtrejo for this info",
+  ghClientId: "ask github.com/dtrejo for this info"
+, ghSecret: "ask github.com/dtrejo for this info"
+, ghAuthUrl: "https://github.com/login/oauth/authorize"
+, ghTokenUrl: "https://github.com/login/oauth/access_token"
+, couchHost: "localhost"
+, couchPort: 5984
+, couchUser: "ask github.com/dtrejo for this info"
+, couchPass: "ask github.com/dtrejo for this info"
 }
